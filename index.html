@@ -1,1 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>MinuteWealth · Earn Every Minute</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    }
 
+    body {
+      background: linear-gradient(145deg, #0b1120 0%, #0a0f1c 100%);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app-container {
+      max-width: 600px;
+      width: 100%;
+      margin: 0 auto;
+      background: rgba(18, 25, 45, 0.75);
+      backdrop-filter: blur(12px);
+      border-radius: 3rem;
+      padding: 1.8rem;
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(66, 153, 225, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #E0F2FE, #A5F3FC);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge {
+      background: #1e2a47;
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #94a3b8;
+    }
+
+    .balance-card {
+      background: linear-gradient(120deg, #0f172acc, #0a0f1fcc);
+      border-radius: 2rem;
+      padding: 1.4rem 1.8rem;
+      margin: 1.5rem 0;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .balance-label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 500;
+      color: #7e8ba3;
+    }
+
+    .balance-amount {
+      font-size: 3.3rem;
+      font-weight: 800;
+      color: white;
+      line-height: 1;
+      margin-top: 0.3rem;
+      word-break: break-word;
+    }
+
+    .balance-amount small {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #60a5fa;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-box {
+      background: #0f172ab3;
+      border-radius: 1.5rem;
+      padding: 0.8rem 1rem;
+      flex: 1;
+      text-align: center;
+      border: 1px solid #1e2a47;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: #8c9bb0;
+    }
+
+    .stat-value {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #e2e8f0;
+      margin-top: 4px;
+    }
+
+    .action-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin: 1.8rem 0;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 0.9rem 0.5rem;
+      border: none;
+      border-radius: 2.5rem;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #1e293b;
+      color: #cbd5e6;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .btn-primary {
+      background: #0f3b5c;
+      color: white;
+      border-bottom: 2px solid #2dd4bf;
+    }
+
+    .btn-primary:hover {
+      background: #1e4a76;
+      transform: translateY(-1px);
+    }
+
+    .btn-success {
+      background: #0f3d2e;
+      border-bottom: 2px solid #4ade80;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #1b5e3f;
+    }
+
+    .btn-warning {
+      background: #4a2f1d;
+      border-bottom: 2px solid #f97316;
+      color: white;
+    }
+
+    .btn-warning:hover {
+      background: #7c4527;
+    }
+
+    .btn-danger {
+      background: #4a1e2c;
+      border-bottom: 2px solid #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #7f2e3f;
+    }
+
+    .input-group {
+      background: #0f172a;
+      border-radius: 2rem;
+      padding: 0.3rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 1rem 0 0.5rem;
+      border: 1px solid #2d3a5e;
+    }
+
+    .input-group span {
+      color: #7e8ba3;
+      font-weight: 500;
+    }
+
+    .input-group input {
+      background: transparent;
+      border: none;
+      padding: 0.9rem 0;
+      flex: 1;
+      color: white;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .input-group input::placeholder {
+      color: #3b4b6e;
+    }
+
+    .small-note {
+      font-size: 0.7rem;
+      color: #5b6e8c;
+      text-align: center;
+      margin: 0.8rem 0;
+    }
+
+    .warning-note {
+      color: #facc15;
+      background: #2d2a1e80;
+      border-radius: 2rem;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.7rem;
+      text-align: center;
+      display: inline-block;
+      margin-top: 5px;
+    }
+
+    .auth-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .auth-row {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .auth-input {
+      background: #0f172a;
+      border: 1px solid #2d3a5e;
+      border-radius: 2rem;
+      padding: 0.7rem 1rem;
+      flex: 1;
+      color: white;
+      outline: none;
+    }
+
+    hr {
+      border-color: #1e2a47;
+      margin: 1.2rem 0;
+    }
+
+    .tx-list {
+      max-height: 220px;
+      overflow-y: auto;
+      font-size: 0.75rem;
+      background: #02061733;
+      border-radius: 1.2rem;
+      padding: 0.5rem;
+    }
+
+    .tx-item {
+      border-bottom: 1px solid #1e293b;
+      padding: 0.55rem;
+      color: #b9c7db;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .positive {
+      color: #4ade80;
+    }
+    .negative {
+      color: #f87171;
+    }
+
+    .logout-btn {
+      background: none;
+      border: 1px solid #334155;
+      color: #a0afc5;
+      border-radius: 2rem;
+      padding: 0.4rem 1rem;
+      font-size: 0.7rem;
+      cursor: pointer;
+    }
+
+    .tagline {
+      font-size: 0.7rem;
+      color: #60a5fa;
+      text-align: center;
+      margin-top: 0.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    .limit-badge {
+      background: #1e2a3a;
+      border-radius: 1rem;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.65rem;
+      color: #e2c28b;
+    }
+  </style>
+</head>
+<body>
+<div class="app-container" id="appRoot">
+  <div style="text-align: center; color: #90a3bf;">Loading MinuteWealth...</div>
+</div>
+
+<script>
+  // ---------- CONFIGURATION ----------
+  const PER_MINUTE_RATE = 0.00015;       // 0.015% per minute
+  const DAILY_BONUS_RATE = 0.02;         // 2% daily bonus on invested amount
+  
+  // *** NEW: Maximum withdrawal limit per single transaction ***
+  // This limit restricts how much a user can withdraw in one request.
+  // You can change this value to any amount: 500, 1000, 5000, etc.
+  const MAX_WITHDRAWAL_AMOUNT = 2500;     // $2,500 max per withdrawal
+
+  // ---------- STORAGE KEYS ----------
+  const STORAGE_USERS = "minutewealth_users";
+  const STORAGE_SESSION = "minutewealth_session";
+
+  function generateId() {
+    return Date.now() + '-' + Math.random().toString(36).substring(2, 8);
+  }
+
+  // ---------- USER SYSTEM ----------
+  let currentUser = null;
+  let users = [];
+
+  function loadUsers() {
+    const stored = localStorage.getItem(STORAGE_USERS);
+    if (stored) {
+      users = JSON.parse(stored);
+    } else {
+      users = [{
+        id: "1",
+        username: "demo",
+        password: "demo123",
+        walletBalance: 1250.75,
+        investedBalance: 500.00,
+        lastDailyTimestamp: Date.now(),
+        transactions: [
+          { id: "tx1", type: "deposit", amount: 1000, date: Date.now() - 86400000, note: "initial deposit" },
+          { id: "tx2", type: "invest", amount: 500, date: Date.now() - 43200000, note: "investment deposit" }
+        ]
+      }];
+      localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+    }
+  }
+
+  function saveUsers() {
+    localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+  }
+
+  function loadSession() {
+    const sess = localStorage.getItem(STORAGE_SESSION);
+    if (sess) {
+      const found = users.find(u => u.id === sess);
+      if (found) currentUser = found;
+      else localStorage.removeItem(STORAGE_SESSION);
+    }
+  }
+
+  function saveSession(userId) {
+    localStorage.setItem(STORAGE_SESSION, userId);
+  }
+
+  function clearSession() {
+    localStorage.removeItem(STORAGE_SESSION);
+  }
+
+  function findUserByUsername(username) {
+    return users.find(u => u.username === username);
+  }
+
+  function register(username, password) {
+    if (!username.trim() || !password.trim()) return { success: false, message: "Username & password required" };
+    if (findUserByUsername(username)) return { success: false, message: "Username already exists" };
+    const newUser = {
+      id: generateId(),
+      username: username.trim(),
+      password: password.trim(),
+      walletBalance: 0.00,
+      investedBalance: 0.00,
+      lastDailyTimestamp: Date.now(),
+      transactions: []
+    };
+    users.push(newUser);
+    saveUsers();
+    return { success: true, message: "Account created! Please login." };
+  }
+
+  function login(username, password) {
+    const user = findUserByUsername(username);
+    if (!user || user.password !== password) return { success: false, message: "Invalid credentials" };
+    currentUser = user;
+    saveSession(user.id);
+    return { success: true };
+  }
+
+  function logout() {
+    currentUser = null;
+    clearSession();
+    renderApp();
+  }
+
+  function addTransaction(user, type, amount, note = "") {
+    if (!user.transactions) user.transactions = [];
+    user.transactions.unshift({
+      id: generateId(),
+      type: type,
+      amount: amount,
+      date: Date.now(),
+      note: note
+    });
+    if (user.transactions.length > 35) user.transactions.pop();
+    saveUsers();
+  }
+
+  function deposit(amount) {
+    if (!currentUser) return false;
+    if (isNaN(amount) || amount <= 0) return false;
+    const val = parseFloat(amount);
+    currentUser.walletBalance += val;
+    addTransaction(currentUser, "deposit", val, `Deposit +$${val.toFixed(2)}`);
+    saveUsers();
+    return true;
+  }
+
+  // ---------- WITHDRAWAL WITH MAXIMUM LIMIT ----------
+  function withdraw(amount, silent = false) {
+    if (!currentUser) return { success: false, message: "No active user" };
+    const val = parseFloat(amount);
+    if (isNaN(val) || val <= 0) return { success: false, message: "Invalid amount" };
+    
+    // MAXIMUM WITHDRAWAL LIMIT CHECK
+    if (val > MAX_WITHDRAWAL_AMOUNT) {
+      return { 
+        success: false, 
+        message: `Maximum withdrawal per transaction is $${MAX_WITHDRAWAL_AMOUNT.toFixed(2)}. Please enter a smaller amount.` 
+      };
+    }
+    
+    if (currentUser.walletBalance < val) {
+      return { success: false, message: `Insufficient wallet balance. Available: $${currentUser.walletBalance.toFixed(2)}` };
+    }
+    
+    currentUser.walletBalance -= val;
+    addTransaction(currentUser, "withdraw", -val, `Withdrawal -$${val.toFixed(2)}`);
+    saveUsers();
+    return { success: true, message: `Withdrew $${val.toFixed(2)} successfully.` };
+  }
+
+  function investDeposit(amount) {
+    if (!currentUser) return false;
+    const val = parseFloat(amount);
+    if (isNaN(val) || val <= 0) return false;
+    if (currentUser.walletBalance < val) return false;
+    currentUser.walletBalance -= val;
+    currentUser.investedBalance += val;
+    addTransaction(currentUser, "invest", val, `Investment deposit +$${val.toFixed(2)}`);
+    saveUsers();
+    return true;
+  }
+
+  function applyMinuteInterest() {
+    if (!currentUser) return;
+    if (currentUser.investedBalance <= 0) return;
+    const gain = currentUser.investedBalance * PER_MINUTE_RATE;
+    if (gain < 0.00001) return;
+    currentUser.investedBalance += gain;
+    currentUser.walletBalance += gain;
+    addTransaction(currentUser, "interest", gain, `⚡ Per-minute yield +$${gain.toFixed(4)}`);
+    saveUsers();
+  }
+
+  function applyDailyBonus() {
+    if (!currentUser) return;
+    const now = Date.now();
+    const lastDaily = currentUser.lastDailyTimestamp || 0;
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    if (now - lastDaily >= oneDayMs) {
+      if (currentUser.investedBalance > 0) {
+        const dailyGain = currentUser.investedBalance * DAILY_BONUS_RATE;
+        currentUser.investedBalance += dailyGain;
+        currentUser.walletBalance += dailyGain;
+        addTransaction(currentUser, "daily_bonus", dailyGain, `🌟 24h bonus +$${dailyGain.toFixed(2)} (2% daily)`);
+      }
+      currentUser.lastDailyTimestamp = now;
+      saveUsers();
+    }
+  }
+
+  let interestInterval = null;
+  let dailyCheckInterval = null;
+
+  function startBackgroundProcesses() {
+    if (interestInterval) clearInterval(interestInterval);
+    if (dailyCheckInterval) clearInterval(dailyCheckInterval);
+    interestInterval = setInterval(() => {
+      if (currentUser) {
+        applyMinuteInterest();
+        renderApp();
+      }
+    }, 60000);
+    dailyCheckInterval = setInterval(() => {
+      if (currentUser) {
+        applyDailyBonus();
+        renderApp();
+      }
+    }, 30 * 60 * 1000);
+  }
+
+  function ensureDailyCheck() {
+    if (currentUser) applyDailyBonus();
+  }
+
+  function formatMoney(val) {
+    return val.toFixed(2);
+  }
+
+  function formatDate(timestamp) {
+    return new Date(timestamp).toLocaleString();
+  }
+
+  function renderApp() {
+    const root = document.getElementById("appRoot");
+    if (!root) return;
+
+    if (!currentUser) {
+      // LOGIN SCREEN (unchanged but modern)
+      root.innerHTML = `
+        <div style="text-align: center; margin-bottom: 1rem;">
+          <h1>⏱️ MinuteWealth</h1>
+          <div class="tagline">Earn every minute — Bonus every 24h</div>
+          <div class="badge" style="display: inline-block; margin-top: 8px;">Per‑minute yield • Daily compounding</div>
+        </div>
+        <div class="auth-section">
+          <div style="background: #0b1120; border-radius: 1.8rem; padding: 1rem;">
+            <h3 style="color: white; margin-bottom: 1rem;">🔐 Access Your Wealth</h3>
+            <div class="auth-row">
+              <input type="text" id="loginUsername" class="auth-input" placeholder="Username">
+              <input type="password" id="loginPassword" class="auth-input" placeholder="Password">
+              <button id="loginBtn" class="btn btn-primary" style="flex: 0.6;">Login</button>
+            </div>
+            <hr />
+            <h3 style="color: white; margin: 0.5rem 0 0.8rem;">📝 Create Account</h3>
+            <div class="auth-row">
+              <input type="text" id="regUsername" class="auth-input" placeholder="Username">
+              <input type="password" id="regPassword" class="auth-input" placeholder="Password">
+              <button id="registerBtn" class="btn btn-success" style="flex: 0.6;">Register</button>
+            </div>
+            <div class="small-note">Demo: demo / demo123 | Every minute + 2% daily on invested funds</div>
+          </div>
+        </div>
+      `;
+      document.getElementById("loginBtn")?.addEventListener("click", () => {
+        const res = login(document.getElementById("loginUsername").value, document.getElementById("loginPassword").value);
+        if (!res.success) alert(res.message);
+        else { ensureDailyCheck(); renderApp(); startBackgroundProcesses(); }
+      });
+      document.getElementById("registerBtn")?.addEventListener("click", () => {
+        const res = register(document.getElementById("regUsername").value, document.getElementById("regPassword").value);
+        alert(res.message);
+        if (res.success) {
+          document.getElementById("loginUsername").value = document.getElementById("regUsername").value;
+          document.getElementById("loginPassword").value = document.getElementById("regPassword").value;
+        }
+      });
+      return;
+    }
+
+    // ----- DASHBOARD (LOGGED IN) -----
+    const walletBal = currentUser.walletBalance || 0;
+    const investedBal = currentUser.investedBalance || 0;
+    const totalAssets = walletBal + investedBal;
+
+    const txListHtml = currentUser.transactions && currentUser.transactions.length ? 
+      currentUser.transactions.slice(0, 12).map(tx => {
+        const isPositive = tx.amount > 0;
+        return `<div class="tx-item"><span><strong>${tx.type.toUpperCase()}</strong> ${tx.note || ''}</span><span class="${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}$${Math.abs(tx.amount).toFixed(4)}</span><span style="font-size:0.6rem;">${formatDate(tx.date)}</span></div>`;
+      }).join('') : '<div class="tx-item">No transactions yet</div>';
+
+    root.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1>⏱️ MinuteWealth</h1>
+        <button id="logoutButton" class="logout-btn">Logout</button>
+      </div>
+      <div class="tagline" style="margin-top: -8px;">⏳ Earnings every minute • 🌙 24h bonus</div>
+      <div class="balance-card">
+        <div class="balance-label">TOTAL PORTFOLIO VALUE</div>
+        <div class="balance-amount">$${formatMoney(totalAssets)}<small> USD</small></div>
+        <div style="display: flex; justify-content: space-between; margin-top: 12px;">
+          <span>💼 Wallet: $${formatMoney(walletBal)}</span>
+          <span>📈 Invested: $${formatMoney(investedBal)}</span>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-label">⚡ Per‑minute yield</div><div class="stat-value">0.015%</div></div>
+        <div class="stat-box"><div class="stat-label">🌟 24h Bonus</div><div class="stat-value">2%</div></div>
+        <div class="stat-box"><div class="stat-label">Max Withdrawal</div><div class="stat-value">$${MAX_WITHDRAWAL_AMOUNT}</div></div>
+      </div>
+      <div class="action-grid">
+        <button id="depositModalBtn" class="btn btn-success">➕ Deposit</button>
+        <button id="withdrawModalBtn" class="btn btn-danger">💸 Withdraw</button>
+        <button id="investModalBtn" class="btn btn-primary">📈 Invest</button>
+      </div>
+      <div id="inlineActionPanel" style="background: #0f172a80; border-radius: 1.8rem; padding: 1rem; margin: 0.5rem 0;"><div id="actionForm"></div></div>
+      <hr />
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight: 600; color: #b9d0f0;">📜 Recent Activity</span>
+        <span class="limit-badge">⛔ Max withdrawal: $${MAX_WITHDRAWAL_AMOUNT}</span>
+      </div>
+      <div class="tx-list">${txListHtml}</div>
+      <div class="small-note">⏱️ MinuteWealth: Your money never sleeps — earning every minute, boosted daily. Withdrawal limit per transaction: $${MAX_WITHDRAWAL_AMOUNT}.</div>
+    `;
+
+    const actionDiv = document.getElementById("actionForm");
+    const hideForm = () => { if(actionDiv) actionDiv.innerHTML = ''; };
+
+    // Deposit handler
+    document.getElementById("depositModalBtn")?.addEventListener("click", () => {
+      actionDiv.innerHTML = `
+        <div class="input-group"><span>$</span><input type="number" id="depositAmount" placeholder="Amount to deposit" step="any" min="1"></div>
+        <div style="display: flex; gap: 0.5rem;"><button id="confirmDeposit" class="btn btn-success">Confirm Deposit</button><button id="cancelAction" class="btn">Cancel</button></div>
+        <div class="small-note">Add funds to your wallet. No limits on deposit.</div>
+      `;
+      document.getElementById("confirmDeposit")?.addEventListener("click", () => {
+        const amt = parseFloat(document.getElementById("depositAmount")?.value);
+        if (deposit(amt)) { alert(`Deposited $${amt.toFixed(2)}`); ensureDailyCheck(); renderApp(); }
+        else alert("Invalid deposit amount");
+        hideForm();
+      });
+      document.getElementById("cancelAction")?.addEventListener("click", () => hideForm());
+    });
+
+    // Withdraw handler with MAX LIMIT warning and enforcement
+    document.getElementById("withdrawModalBtn")?.addEventListener("click", () => {
+      actionDiv.innerHTML = `
+        <div class="input-group"><span>$</span><input type="number" id="withdrawAmount" placeholder="Amount to withdraw" step="any" min="1" max="${MAX_WITHDRAWAL_AMOUNT}"></div>
+        <div class="warning-note" style="margin-bottom: 8px;">⚠️ Maximum per withdrawal: $${MAX_WITHDRAWAL_AMOUNT}</div>
+        <div style="display: flex; gap: 0.5rem;"><button id="confirmWithdraw" class="btn btn-danger">Confirm Withdraw</button><button id="cancelAction" class="btn">Cancel</button></div>
+      `;
+      const withdrawInput = document.getElementById("withdrawAmount");
+      if (withdrawInput) {
+        withdrawInput.setAttribute("max", MAX_WITHDRAWAL_AMOUNT);
+      }
+      document.getElementById("confirmWithdraw")?.addEventListener("click", () => {
+        const amt = parseFloat(document.getElementById("withdrawAmount")?.value);
+        const result = withdraw(amt);
+        alert(result.message);
+        if (result.success) {
+          ensureDailyCheck();
+          renderApp();
+        } else {
+          // Re-render to keep error context visible but also show same panel? We'll just re-render and keep form? easier: re-render and keep action panel open with error?
+          renderApp();
+          // Re-open withdraw panel after render to show error context (optional ux)
+          setTimeout(() => {
+            const btn = document.getElementById("withdrawModalBtn");
+            if (btn) btn.click();
+          }, 50);
+        }
+        hideForm();
+      });
+      document.getElementById("cancelAction")?.addEventListener("click", () => hideForm());
+    });
+
+    // Invest handler
+    document.getElementById("investModalBtn")?.addEventListener("click", () => {
+      actionDiv.innerHTML = `
+        <div class="input-group"><span>$</span><input type="number" id="investAmount" placeholder="Amount to invest" step="any" min="1"></div>
+        <div style="display: flex; gap: 0.5rem;"><button id="confirmInvest" class="btn btn-primary">Confirm Investment</button><button id="cancelAction" class="btn">Cancel</button></div>
+        <div class="small-note">💡 Invested amount earns per-minute (0.015% per min) + 2% daily bonus.</div>
+      `;
+      document.getElementById("confirmInvest")?.addEventListener("click", () => {
+        const amt = parseFloat(document.getElementById("investAmount")?.value);
+        if (investDeposit(amt)) { alert(`$${amt.toFixed(2)} invested! Now earning minute yields.`); ensureDailyCheck(); renderApp(); }
+        else alert("Not enough wallet balance or invalid amount");
+        hideForm();
+      });
+      document.getElementById("cancelAction")?.addEventListener("click", () => hideForm());
+    });
+    
+    document.getElementById("logoutButton")?.addEventListener("click", () => { 
+      logout(); 
+      if(interestInterval) clearInterval(interestInterval); 
+      if(dailyCheckInterval) clearInterval(dailyCheckInterval); 
+    });
+  }
+
+  function init() {
+    loadUsers();
+    loadSession();
+    startBackgroundProcesses();
+    if (currentUser) ensureDailyCheck();
+    renderApp();
+    setInterval(() => { if(currentUser) { ensureDailyCheck(); renderApp(); } }, 30000);
+  }
+
+  init();
+</script>
+</body>
+</html>
