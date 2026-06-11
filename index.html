@@ -1,1 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>MinuteWealth · 6 Month Reward Lock</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body { background: linear-gradient(145deg, #0b1120 0%, #0a0f1c 100%); min-height: 100vh; padding: 2rem 1rem; display: flex; justify-content: center; align-items: center; }
+    .app-container { max-width: 600px; width: 100%; background: rgba(18, 25, 45, 0.75); backdrop-filter: blur(12px); border-radius: 3rem; padding: 1.8rem; box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4); }
+    h1 { font-size: 1.9rem; background: linear-gradient(135deg, #E0F2FE, #A5F3FC); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .badge { background: #1e2a47; padding: 0.25rem 0.75rem; border-radius: 2rem; font-size: 0.7rem; color: #94a3b8; display: inline-block; }
+    .balance-card { background: linear-gradient(120deg, #0f172acc, #0a0f1fcc); border-radius: 2rem; padding: 1.4rem; margin: 1.5rem 0; border: 1px solid rgba(56, 189, 248, 0.25); }
+    .balance-amount { font-size: 2.8rem; font-weight: 800; color: white; }
+    .grid-3 { display: flex; gap: 1rem; margin-bottom: 1.8rem; }
+    .stat-box { background: #0f172ab3; border-radius: 1.5rem; padding: 0.8rem; flex: 1; text-align: center; color: #e2e8f0; font-size: 0.8rem; }
+    .btn { flex: 1; padding: 0.9rem; border: none; border-radius: 2.5rem; font-weight: 700; cursor: pointer; transition: 0.2s; background: #1e293b; color: white; }
+    .btn-success { background: #0f3d2e; border-bottom: 2px solid #4ade80; }
+    .btn-danger { background: #4a1e2c; border-bottom: 2px solid #ef4444; }
+    .btn-primary { background: #0f3b5c; border-bottom: 2px solid #2dd4bf; }
+    .btn-flutter { background: #0d2a3b; border-bottom: 2px solid #f5a623; }
+    .input-group { background: #0f172a; border-radius: 2rem; padding: 0.3rem 1rem; display: flex; margin: 1rem 0; border: 1px solid #2d3a5e; }
+    .input-group input { background: transparent; border: none; padding: 0.9rem 0; flex: 1; color: white; outline: none; }
+    .warning-note { background: #facc1510; border-left: 3px solid #facc15; padding: 0.5rem; font-size: 0.7rem; color: #facc15; margin: 0.5rem 0; border-radius: 0.5rem; }
+    .info-note { background: #0f3b5c30; border-left: 3px solid #2dd4bf; padding: 0.5rem; font-size: 0.7rem; color: #86efac; margin: 0.5rem 0; border-radius: 0.5rem; }
+    .tx-list { max-height: 220px; overflow-y: auto; font-size: 0.75rem; background: #02061733; border-radius: 1.2rem; padding: 0.5rem; }
+    .tx-item { border-bottom: 1px solid #1e293b; padding: 0.55rem; color: #b9c7db; display: flex; justify-content: space-between; }
+    .positive { color: #4ade80; }
+    .negative { color: #f87171; }
+    .logout-btn { background: none; border: 1px solid #334155; color: #a0afc5; border-radius: 2rem; padding: 0.4rem 1rem; cursor: pointer; }
+    .tagline { font-size: 0.7rem; color: #60a5fa; text-align: center; margin-top: 0.5rem; }
+  </style>
+  <script src="https://checkout.flutterwave.com/v3.js"></script>
+</head>
+<body>
+<div class="app-container" id="appRoot">Loading MinuteWealth...</div>
 
+<script>
+  // ============================================================
+  // YOUR FLUTTERWAVE PUBLIC KEY (PASTED BELOW)
+  // ============================================================
+  const FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK-ecb36122198c9b302216b857c96c14b9-X";
+  
+  // ============================================================
+  // APP CONFIGURATION
+  // ============================================================
+  const PER_MINUTE_RATE = 0.00015;      // 0.015% per minute
+  const DAILY_BONUS_RATE = 0.02;        // 2% daily (SIMULATED ONLY - not real)
+  const MAX_WITHDRAWAL_AMOUNT = 2500;
+  const LOCKUP_MONTHS = 6;
+  const LOCKUP_MS = LOCKUP_MONTHS * 30 * 24 * 60 * 60 * 1000;
+
+  // Storage
+  const STORAGE_USERS = "minutewealth_users_v2";
+  const STORAGE_SESSION = "minutewealth_session";
+
+  function generateId() { return Date.now() + '-' + Math.random().toString(36).substring(2, 8); }
+
+  let currentUser = null;
+  let users = [];
+
+  // --- User Management ---
+  function loadUsers() {
+    const stored = localStorage.getItem(STORAGE_USERS);
+    if (stored) { users = JSON.parse(stored); } 
+    else {
+      users = [{
+        id: "1", username: "demo", password: "demo123", email: "demo@minutewealth.com",
+        walletBalance: 1250.75,
+        investedBalance: 500.00,
+        lockedRewards: 0.00,
+        lastDailyTimestamp: Date.now(),
+        rewardLockEntries: [],
+        transactions: []
+      }];
+      localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+    }
+  }
+  function saveUsers() { localStorage.setItem(STORAGE_USERS, JSON.stringify(users)); }
+  function loadSession() { const sess = localStorage.getItem(STORAGE_SESSION); if(sess) { const found = users.find(u => u.id === sess); if(found) currentUser = found; else localStorage.removeItem(STORAGE_SESSION); } }
+  function saveSession(userId) { localStorage.setItem(STORAGE_SESSION, userId); }
+  function clearSession() { localStorage.removeItem(STORAGE_SESSION); }
+  function findUserByUsername(username) { return users.find(u => u.username === username); }
+  
+  function register(username, password, email) {
+    if (!username.trim() || !password.trim()) return { success: false, message: "Username & password required" };
+    if (findUserByUsername(username)) return { success: false, message: "Username already exists" };
+    const newUser = { 
+      id: generateId(), username: username.trim(), password: password.trim(), email: email || `${username}@minutewealth.com`,
+      walletBalance: 0, investedBalance: 0, lockedRewards: 0, lastDailyTimestamp: Date.now(), rewardLockEntries: [], transactions: [] 
+    };
+    users.push(newUser); saveUsers();
+    return { success: true, message: "Account created! Please login." };
+  }
+  
+  function login(username, password) {
+    const user = findUserByUsername(username);
+    if (!user || user.password !== password) return { success: false, message: "Invalid credentials" };
+    currentUser = user; saveSession(user.id);
+    return { success: true };
+  }
+  
+  function logout() { currentUser = null; clearSession(); renderApp(); }
+  
+  function addTransaction(user, type, amount, note) {
+    if (!user.transactions) user.transactions = [];
+    user.transactions.unshift({ id: generateId(), type, amount, date: Date.now(), note });
+    if (user.transactions.length > 35) user.transactions.pop();
+    saveUsers();
+  }
+
+  // --- Reward Lock Logic ---
+  function addLockedReward(amount, reason) {
+    if (!currentUser || amount <= 0) return;
+    const unlockDate = Date.now() + LOCKUP_MS;
+    currentUser.rewardLockEntries.push({ amount: amount, unlockDate: unlockDate, reason: reason });
+    currentUser.lockedRewards += amount;
+    addTransaction(currentUser, "reward_locked", amount, `🔒 ${reason} +$${amount.toFixed(4)} (Unlocks in ${LOCKUP_MONTHS} months)`);
+    saveUsers();
+  }
+
+  function processUnlockedRewards() {
+    if (!currentUser) return;
+    const now = Date.now();
+    let maturedAmount = 0;
+    const remainingEntries = [];
+    
+    for (const entry of currentUser.rewardLockEntries) {
+      if (now >= entry.unlockDate) {
+        maturedAmount += entry.amount;
+        addTransaction(currentUser, "reward_unlocked", entry.amount, `🔓 Reward unlocked +$${entry.amount.toFixed(2)} (Now available for withdrawal)`);
+      } else {
+        remainingEntries.push(entry);
+      }
+    }
+    
+    if (maturedAmount > 0) {
+      currentUser.walletBalance += maturedAmount;
+      currentUser.lockedRewards -= maturedAmount;
+      currentUser.rewardLockEntries = remainingEntries;
+      addTransaction(currentUser, "unlock_credited", maturedAmount, `✅ $${maturedAmount.toFixed(2)} unlocked from ${LOCKUP_MONTHS}-month lock!`);
+      saveUsers();
+    }
+  }
+
+  // --- Core Actions ---
+  function deposit(amount, isRealPayment = false) {
+    if (!currentUser || isNaN(amount) || amount <= 0) return false;
+    currentUser.walletBalance += amount;
+    addTransaction(currentUser, "deposit", amount, `Deposit +$${amount.toFixed(2)}${isRealPayment ? " (via Flutterwave)" : ""}`);
+    saveUsers();
+    return true;
+  }
+
+  function withdraw(amount) {
+    if (!currentUser) return { success: false, message: "No user" };
+    const val = parseFloat(amount);
+    if (isNaN(val) || val <= 0) return { success: false, message: "Invalid amount" };
+    if (val > MAX_WITHDRAWAL_AMOUNT) return { success: false, message: `Max withdrawal per transaction is $${MAX_WITHDRAWAL_AMOUNT}` };
+    
+    if (currentUser.walletBalance < val) {
+      return { success: false, message: `Insufficient available balance. You have $${currentUser.walletBalance.toFixed(2)} available. Locked rewards: $${currentUser.lockedRewards.toFixed(2)}` };
+    }
+    
+    currentUser.walletBalance -= val;
+    addTransaction(currentUser, "withdraw", -val, `Withdrawal -$${val.toFixed(2)}`);
+    saveUsers();
+    return { success: true, message: `Withdrew $${val.toFixed(2)} successfully.` };
+  }
+
+  function investDeposit(amount) {
+    if (!currentUser) return false;
+    const val = parseFloat(amount);
+    if (isNaN(val) || val <= 0) return false;
+    if (currentUser.walletBalance < val) return false;
+    currentUser.walletBalance -= val;
+    currentUser.investedBalance += val;
+    addTransaction(currentUser, "invest", val, `Investment deposit +$${val.toFixed(2)}`);
+    saveUsers();
+    return true;
+  }
+
+  // Interest Generation (Rewards go into LOCKED state)
+  function applyMinuteInterest() {
+    if (!currentUser || currentUser.investedBalance <= 0) return;
+    const gain = currentUser.investedBalance * PER_MINUTE_RATE;
+    if (gain < 0.0001) return;
+    currentUser.investedBalance += gain;
+    addLockedReward(gain, "Per-minute yield");
+    saveUsers();
+  }
+
+  function applyDailyBonus() {
+    if (!currentUser) return;
+    const now = Date.now();
+    const lastDaily = currentUser.lastDailyTimestamp || 0;
+    if (now - lastDaily >= 24 * 60 * 60 * 1000) {
+      if (currentUser.investedBalance > 0) {
+        const dailyGain = currentUser.investedBalance * DAILY_BONUS_RATE;
+        currentUser.investedBalance += dailyGain;
+        addLockedReward(dailyGain, "24h Bonus");
+      }
+      currentUser.lastDailyTimestamp = now;
+      saveUsers();
+    }
+  }
+
+  // Flutterwave Payment Integration
+  function initiateFlutterwaveDeposit(amount) {
+    if (!currentUser) {
+      alert("Please login first");
+      return;
+    }
+    if (amount < 1) {
+      alert("Minimum deposit is $1");
+      return;
+    }
+    
+    const userEmail = currentUser.email || `${currentUser.username}@minutewealth.com`;
+    const txRef = `MW_${currentUser.id}_${Date.now()}`;
+    
+    FlutterwaveCheckout({
+      public_key: FLUTTERWAVE_PUBLIC_KEY,
+      tx_ref: txRef,
+      amount: amount,
+      currency: "USD",
+      payment_options: "card,mobilemoney,ussd,banktransfer",
+      customer: {
+        email: userEmail,
+        name: currentUser.username,
+      },
+      customizations: {
+        title: "MinuteWealth Deposit",
+        description: `Add $${amount} to your investment wallet`,
+        logo: "https://minutewealth.com/logo.png",
+      },
+      callback: function(response) {
+        console.log("Payment success:", response);
+        if (deposit(amount, true)) {
+          alert(`✅ Payment successful! $${amount} has been added to your wallet.`);
+          renderApp();
+        } else {
+          alert("Payment was successful but please contact support.");
+        }
+      },
+      onclose: function() {
+        console.log("Payment modal closed");
+      },
+    });
+  }
+
+  // --- Background & UI ---
+  let interestInterval, dailyCheckInterval;
+  function startBackgroundProcesses() {
+    if (interestInterval) clearInterval(interestInterval);
+    if (dailyCheckInterval) clearInterval(dailyCheckInterval);
+    interestInterval = setInterval(() => { if(currentUser) { applyMinuteInterest(); processUnlockedRewards(); renderApp(); } }, 60000);
+    dailyCheckInterval = setInterval(() => { if(currentUser) { applyDailyBonus(); processUnlockedRewards(); renderApp(); } }, 30 * 60 * 1000);
+  }
+
+  function formatMoney(val) { return val.toFixed(2); }
+  function formatDate(ts) { return new Date(ts).toLocaleString(); }
+
+  function renderApp() {
+    const root = document.getElementById("appRoot");
+    if (!root) return;
+    
+    if (!currentUser) {
+      root.innerHTML = `
+        <div style="text-align: center; margin-bottom: 1rem;">
+          <h1>⏱️ MinuteWealth</h1>
+          <div class="tagline">Real deposits via Flutterwave • 6-month reward lock</div>
+          <div class="badge" style="display: inline-block; margin-top: 8px;">💳 Visa/Mastercard • Mobile Money</div>
+        </div>
+        <div class="auth-section" style="background: #0b1120; border-radius: 1.8rem; padding: 1rem;">
+          <h3 style="color: white;">🔐 Login</h3>
+          <input type="text" id="loginUsername" class="input-group" style="width:100%; margin:0.5rem 0;" placeholder="Username">
+          <input type="password" id="loginPassword" class="input-group" style="width:100%; margin:0.5rem 0;" placeholder="Password">
+          <button id="loginBtn" class="btn btn-primary">Login</button>
+          <hr>
+          <h3 style="color: white;">📝 Register</h3>
+          <input type="text" id="regUsername" class="input-group" style="width:100%; margin:0.5rem 0;" placeholder="Username">
+          <input type="password" id="regPassword" class="input-group" style="width:100%; margin:0.5rem 0;" placeholder="Password">
+          <input type="email" id="regEmail" class="input-group" style="width:100%; margin:0.5rem 0;" placeholder="Email">
+          <button id="registerBtn" class="btn btn-success">Register</button>
+          <div class="small-note" style="margin-top:1rem;">Demo: demo / demo123</div>
+        </div>
+      `;
+      document.getElementById("loginBtn")?.addEventListener("click", () => {
+        const res = login(document.getElementById("loginUsername").value, document.getElementById("loginPassword").value);
+        if (!res.success) alert(res.message);
+        else { processUnlockedRewards(); renderApp(); startBackgroundProcesses(); }
+      });
+      document.getElementById("registerBtn")?.addEventListener("click", () => {
+        const res = register(
+          document.getElementById("regUsername").value,
+          document.getElementById("regPassword").value,
+          document.getElementById("regEmail").value
+        );
+        alert(res.message);
+        if (res.success) {
+          document.getElementById("loginUsername").value = document.getElementById("regUsername").value;
+          document.getElementById("loginPassword").value = document.getElementById("regPassword").value;
+        }
+      });
+      return;
+    }
+
+    processUnlockedRewards();
+
+    const totalValue = currentUser.walletBalance + currentUser.investedBalance;
+    const txListHtml = currentUser.transactions?.slice(0, 10).map(tx => {
+      const isPositive = tx.amount > 0;
+      return `<div class="tx-item"><span>${tx.type.toUpperCase()} ${tx.note || ''}</span><span class="${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}$${Math.abs(tx.amount).toFixed(2)}</span><span style="font-size:0.6rem;">${formatDate(tx.date)}</span></div>`;
+    }).join('') || '<div class="tx-item">No transactions yet</div>';
+
+    root.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1>⏱️ MinuteWealth</h1>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+      </div>
+      <div class="tagline">💰 Real Deposits | Rewards Locked ${LOCKUP_MONTHS} Months</div>
+      
+      <div class="balance-card">
+        <div class="balance-label">TOTAL PORTFOLIO</div>
+        <div class="balance-amount">$${formatMoney(totalValue)}</div>
+        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+          <span>💸 Available Now: $${formatMoney(currentUser.walletBalance)}</span>
+          <span>🔒 Locked Rewards: $${formatMoney(currentUser.lockedRewards)}</span>
+        </div>
+        <div style="font-size:0.7rem; margin-top:5px;">📈 Invested (working): $${formatMoney(currentUser.investedBalance)}</div>
+      </div>
+      
+      <div class="grid-3">
+        <div class="stat-box">⚡ Per-min<br>0.015%</div>
+        <div class="stat-box">🌟 24h Bonus<br>2%</div>
+        <div class="stat-box">🔒 Lock<br>${LOCKUP_MONTHS} Months</div>
+      </div>
+      
+      <div class="grid-3">
+        <button id="realDepositBtn" class="btn btn-flutter">💳 Deposit</button>
+        <button id="withdrawBtn" class="btn btn-danger">💸 Withdraw</button>
+        <button id="investBtn" class="btn btn-primary">📈 Invest</button>
+      </div>
+      
+      <div id="actionPanel"></div>
+      
+      <div class="info-note">
+        💡 HOW IT WORKS:<br>
+        • Deposits → Available to withdraw anytime<br>
+        • Invest → Moves money to work for you<br>
+        • Rewards (interest) → Locked for ${LOCKUP_MONTHS} months<br>
+        • After ${LOCKUP_MONTHS} months → Rewards become available
+      </div>
+      
+      <div class="warning-note">
+        ⚠️ LEGAL DISCLAIMER: The 2% daily and per-minute yields are SIMULATIONS only. MinuteWealth is a gamified savings tracker, not a regulated investment product.
+      </div>
+      
+      <hr>
+      <div style="display: flex; justify-content: space-between;">
+        <span style="font-weight: 600; color: #b9d0f0;">📜 Recent Activity</span>
+        <span class="badge">🔒 ${LOCKUP_MONTHS} month lock</span>
+      </div>
+      <div class="tx-list">${txListHtml}</div>
+      <div class="small-note" style="margin-top:0.5rem;">⏱️ Rewards earn every minute & daily. All rewards are locked for ${LOCKUP_MONTHS} months.</div>
+    `;
+
+    const panel = document.getElementById("actionPanel");
+    
+    // Deposit button
+    document.getElementById("realDepositBtn")?.addEventListener("click", () => {
+      panel.innerHTML = `
+        <div class="input-group"><span>$</span><input id="depositAmount" placeholder="Amount to deposit (min $1)" type="number" min="1" step="1"></div>
+        <div style="display: flex; gap: 0.5rem;"><button id="confirmDeposit" class="btn btn-flutter">Pay with Flutterwave</button><button id="closePanel" class="btn">Cancel</button></div>
+        <div class="small-note">💳 Secured by Flutterwave. Supports cards, mobile money, bank transfers.</div>
+      `;
+      document.getElementById("confirmDeposit")?.addEventListener("click", () => {
+        const amt = parseFloat(document.getElementById("depositAmount")?.value);
+        if (amt && amt >= 1) initiateFlutterwaveDeposit(amt);
+        else alert("Enter a valid amount (min $1)");
+        panel.innerHTML = "";
+      });
+      document.getElementById("closePanel")?.addEventListener("click", () => panel.innerHTML = "");
+    });
+    
+    // Withdraw button
+    document.getElementById("withdrawBtn")?.addEventListener("click", () => {
+      panel.innerHTML = `
+        <div class="input-group"><span>$</span><input id="withdrawAmount" placeholder="Available: $${currentUser.walletBalance}" type="number" min="1" max="${Math.min(MAX_WITHDRAWAL_AMOUNT, currentUser.walletBalance)}"></div>
+        <div class="warning-note">⚠️ Maximum per withdrawal: $${MAX_WITHDRAWAL_AMOUNT}</div>
+        <div style="display: flex; gap: 0.5rem;"><button id="confirmWithdraw" class="btn btn-danger">Confirm Withdraw</button><button id="closePanel" class="btn">Cancel</button></div>
+        <div class="small-note">Only "Available Now" balance can be withdrawn. Locked rewards unlock after ${LOCKUP_MONTHS} months.</div>
+      `;
+      document.getElementById("confirmWithdraw")?.addEventListener("click", () => {
+        const amt = parseFloat(document.getElementById("withdrawAmount")?.value);
+        const result = withdraw(amt);
+        alert(result.message);
+        if (result.success) renderApp();
+        panel.innerHTML = "";
+      });
+      document.getElementById("closePanel")?.addEventListener("click", () => panel.innerHTML = "");
+    });
+    
+    // Invest button
+    document.getElementById("investBtn")?.addEventListener("click", () => {
+      panel.innerHTML = `
+        <div class="input-group"><span>$</span><input id="investAmount" placeholder="Amount to invest" type="number" min="1" step="1" max="${currentUser.walletBalance}"></div>
+        <div style="display: flex; gap: 0.5rem;"><button id="confirmInvest" class="btn btn-primary">Confirm Investment</button><button id="closePanel" class="btn">Cancel</button></div>
+        <div class="small-note">💡 Invested money starts earning per-minute & daily rewards. Rewards are locked for ${LOCKUP_MONTHS} months.</div>
+      `;
+      document.getElementById("confirmInvest")?.addEventListener("click", () => {
+        const amt = parseFloat(document.getElementById("investAmount")?.value);
+        if (investDeposit(amt)) {
+          alert(`$${amt.toFixed(2)} invested! Now earning rewards.`);
+          renderApp();
+        } else {
+          alert(`Insufficient available balance. You have $${currentUser.walletBalance.toFixed(2)} available.`);
+        }
+        panel.innerHTML = "";
+      });
+      document.getElementById("closePanel")?.addEventListener("click", () => panel.innerHTML = "");
+    });
+    
+    document.getElementById("logoutBtn")?.addEventListener("click", () => {
+      logout();
+      if (interestInterval) clearInterval(interestInterval);
+      if (dailyCheckInterval) clearInterval(dailyCheckInterval);
+    });
+  }
+
+  function init() {
+    loadUsers();
+    loadSession();
+    startBackgroundProcesses();
+    if (currentUser) processUnlockedRewards();
+    renderApp();
+    setInterval(() => {
+      if (currentUser) {
+        processUnlockedRewards();
+        renderApp();
+      }
+    }, 30000);
+  }
+  
+  init();
+</script>
+</body>
+</html>
