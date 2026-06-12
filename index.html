@@ -1,1 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>CentLock · Earn on your terms</title>
+  <!-- Google Fonts & Firebase SDKs -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
+    body {
+      background: radial-gradient(ellipse at 30% 30%, #0a0f1a, #03060b);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      padding: 1.2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app-container {
+      max-width: 580px;
+      width: 100%;
+      background: rgba(12, 18, 28, 0.92);
+      backdrop-filter: blur(14px);
+      border-radius: 2rem;
+      padding: 1.5rem;
+      box-shadow: 0 25px 45px -10px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(76, 175, 80, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #E8F5E9, #81C784, #4CAF50);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+    }
+
+    .flex-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .logout-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid #2a3448;
+      padding: 0.4rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #b9c7db;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(76, 175, 80, 0.2);
+      border-color: #4CAF50;
+      color: white;
+    }
+
+    .balance-card {
+      background: linear-gradient(120deg, #0f172ae0, #0a1022e0);
+      border-radius: 1.8rem;
+      padding: 1.2rem;
+      margin: 1rem 0;
+      border: 1px solid rgba(76, 175, 80, 0.4);
+    }
+
+    .balance-amount {
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: white;
+    }
+
+    .progress-bar {
+      background: #1e2a3a;
+      border-radius: 1rem;
+      height: 8px;
+      margin: 0.8rem 0;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: linear-gradient(90deg, #4CAF50, #81C784);
+      width: 0%;
+      height: 100%;
+      border-radius: 1rem;
+      transition: width 0.2s;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 0.6rem;
+      margin: 0.6rem 0;
+    }
+    .stat-card {
+      background: #0f172a80;
+      border-radius: 1.2rem;
+      padding: 0.5rem;
+      text-align: center;
+      flex: 1;
+    }
+    .stat-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      color: #8ca3c0;
+      font-weight: 600;
+    }
+    .stat-value {
+      font-size: 1rem;
+      font-weight: 800;
+      color: white;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 2rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.2s;
+      margin: 0.5rem 0;
+    }
+    .btn-primary {
+      background: linear-gradient(95deg, #2E7D32, #4CAF50);
+      color: white;
+    }
+    .btn-ad {
+      background: linear-gradient(95deg, #F57C00, #FFB74D);
+      color: #0a0f1a;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #4CAF50;
+      color: #4CAF50;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .info-note {
+      background: #0f3b5c30;
+      border-left: 3px solid #4CAF50;
+      padding: 0.7rem;
+      border-radius: 1rem;
+      font-size: 0.7rem;
+      color: #C8E6C9;
+      margin: 0.8rem 0;
+    }
+    .warning-note {
+      background: #facc1510;
+      border-left: 3px solid #facc15;
+      padding: 0.7rem;
+      font-size: 0.7rem;
+      color: #fde047;
+      border-radius: 1rem;
+      margin: 0.8rem 0;
+    }
+
+    .input-group {
+      background: #0f172a;
+      border-radius: 2rem;
+      padding: 0.3rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0.8rem 0;
+      border: 1px solid #2d3a5e;
+    }
+    .input-group input {
+      background: transparent;
+      border: none;
+      padding: 0.8rem 0;
+      flex: 1;
+      color: white;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    .auth-card {
+      background: #0b1122cc;
+      border-radius: 1.8rem;
+      padding: 1.2rem;
+    }
+
+    .request-badge {
+      background: #2a2f42;
+      padding: 0.2rem 0.6rem;
+      border-radius: 1rem;
+      font-size: 0.7rem;
+      color: #FFB74D;
+    }
+    .tx-list {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 0.5rem;
+    }
+    .tx-item {
+      background: #0f172a60;
+      padding: 0.6rem;
+      border-radius: 1rem;
+      margin-bottom: 0.4rem;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+    }
+    .tx-positive { color: #4ade80; font-weight: 600; }
+    .tx-negative { color: #f87171; }
+    hr {
+      border-color: #1e2a47;
+      margin: 1rem 0;
+    }
+    .loading-spinner {
+      text-align: center;
+      color: #8ca3c0;
+      padding: 1rem;
+    }
+  </style>
+</head>
+<body>
+<div class="app-container" id="appRoot">
+  <div class="loading-spinner">🔒 Securing connection...</div>
+</div>
+
+<script>
+  // ============================================================
+  // FIREBASE CONFIGURATION (YOUR CONFIG)
+  // ============================================================
+  const firebaseConfig = {
+    apiKey: "AIzaSyDiZsP0tcprL1xIhu-sCkGP-4Mfv_Rw9dg",
+    authDomain: "joblink-d3d17.firebaseapp.com",
+    projectId: "joblink-d3d17",
+    storageBucket: "joblink-d3d17.firebasestorage.app",
+    messagingSenderId: "462684482263",
+    appId: "1:462684482263:web:981dcbe334850ca3fe5e92",
+    measurementId: "G-WHHYBSKV93"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // ======================== GLOBALS ========================
+  let currentUser = null;
+  let userDocRef = null;
+  let userData = null;
+  
+  // Configurable Ad URL (replace with your Adsterra or other link)
+  const AD_URL = "https://publishers.adsterra.com/29626729/";
+  const MIN_WITHDRAW = 10.00;    // $10 minimum withdrawal
+  const EARN_PER_REQUEST = 0.003; // $0.003 per valid request
+
+  function formatMoney(value) {
+    return value.toFixed(2);
+  }
+
+  // ======================== AUTHENTICATION ========================
+  async function signUp(email, password, username) {
+    try {
+      const cred = await auth.createUserWithEmailAndPassword(email, password);
+      const uid = cred.user.uid;
+      await db.collection("users").doc(uid).set({
+        username: username.trim(),
+        email: email,
+        balance: 0,
+        totalEarned: 0,
+        totalRequests: 0,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      alert("✅ Account created! Please login.");
+      return true;
+    } catch (err) {
+      alert(err.message);
+      return false;
+    }
+  }
+
+  async function signIn(email, password) {
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+      return true;
+    } catch (err) {
+      alert(err.message);
+      return false;
+    }
+  }
+
+  async function signOut() {
+    await auth.signOut();
+    resetAppState();
+    renderAuthScreen();
+  }
+
+  function resetAppState() {
+    currentUser = null;
+    userDocRef = null;
+    userData = null;
+  }
+
+  // ======================== DATA LOADING ========================
+  async function loadUserData() {
+    if (!currentUser) return;
+    const doc = await db.collection("users").doc(currentUser.uid).get();
+    if (doc.exists) {
+      userData = doc.data();
+      userDocRef = db.collection("users").doc(currentUser.uid);
+    } else {
+      await db.collection("users").doc(currentUser.uid).set({
+        username: currentUser.email.split('@')[0],
+        email: currentUser.email,
+        balance: 0,
+        totalEarned: 0,
+        totalRequests: 0,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      userData = { balance: 0, totalEarned: 0, totalRequests: 0, username: currentUser.email.split('@')[0] };
+      userDocRef = db.collection("users").doc(currentUser.uid);
+    }
+  }
+
+  async function fetchTransactions() {
+    if (!currentUser) return [];
+    const snapshot = await db.collection("users").doc(currentUser.uid).collection("transactions")
+      .orderBy("createdAt", "desc")
+      .limit(15)
+      .get();
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  }
+
+  // ======================== AD REQUEST SYSTEM ========================
+  let requestInProgress = false;
+  async function requestAdWatch() {
+    if (!currentUser) { alert("Please login first"); return; }
+    if (requestInProgress) { alert("Please wait, previous request is processing."); return; }
+    requestInProgress = true;
+    
+    window.open(AD_URL, "_blank");
+    
+    const userConfirmed = confirm("📺 Did you watch the ad completely? Click OK to submit your request for manual review.");
+    if (!userConfirmed) {
+      requestInProgress = false;
+      alert("Request cancelled.");
+      return;
+    }
+    
+    try {
+      const requestRef = db.collection("users").doc(currentUser.uid).collection("requests").doc();
+      await requestRef.set({
+        amount: EARN_PER_REQUEST,
+        status: "pending",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      
+      await userDocRef.update({
+        totalRequests: firebase.firestore.FieldValue.increment(1)
+      });
+      if (userData) userData.totalRequests = (userData.totalRequests || 0) + 1;
+      
+      alert("✅ Request submitted! Admin will review and credit your balance within 24-48 hours.");
+      renderDashboard();
+    } catch (err) {
+      alert("Error submitting request: " + err.message);
+    } finally {
+      requestInProgress = false;
+    }
+  }
+
+  // ======================== WITHDRAWAL REQUEST ========================
+  async function requestWithdrawal() {
+    if (!currentUser) return;
+    const balance = userData?.balance || 0;
+    if (balance < MIN_WITHDRAW) {
+      alert(`Minimum withdrawal is $${MIN_WITHDRAW}. You need $${(MIN_WITHDRAW - balance).toFixed(2)} more.`);
+      return;
+    }
+    
+    const pendingSnap = await db.collection("withdrawalRequests")
+      .where("userId", "==", currentUser.uid)
+      .where("status", "==", "pending")
+      .limit(1)
+      .get();
+    if (!pendingSnap.empty) {
+      alert("You already have a pending withdrawal request. Please wait for it to be processed.");
+      return;
+    }
+    
+    try {
+      await db.collection("withdrawalRequests").add({
+        userId: currentUser.uid,
+        username: userData.username,
+        amount: balance,
+        status: "pending",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      alert(`✅ Withdrawal request for $${balance.toFixed(2)} submitted. Admin will review and pay manually.`);
+      renderDashboard();
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  }
+
+  // ======================== RENDER UI ========================
+  async function renderDashboard() {
+    if (!currentUser) return;
+    await loadUserData();
+    const balance = userData?.balance || 0;
+    const totalEarned = userData?.totalEarned || 0;
+    const totalRequests = userData?.totalRequests || 0;
+    const progressPercent = Math.min((balance / MIN_WITHDRAW) * 100, 100);
+    const transactions = await fetchTransactions();
+    
+    const appDiv = document.getElementById("appRoot");
+    appDiv.innerHTML = `
+      <div class="flex-between">
+        <h1>⏱️ CentLock</h1>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+      </div>
+      <div style="font-size:0.7rem; color:#8aaec0; margin-top: 0.2rem;">👋 ${userData?.username || "User"} · ${currentUser.email}</div>
+      
+      <div class="balance-card">
+        <div class="balance-amount">$${formatMoney(balance)}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width: ${progressPercent}%;"></div></div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-label">GOAL</div><div class="stat-value">$${MIN_WITHDRAW}</div></div>
+          <div class="stat-card"><div class="stat-label">REQUESTS</div><div class="stat-value">${totalRequests}</div></div>
+          <div class="stat-card"><div class="stat-label">EARNED</div><div class="stat-value">$${formatMoney(totalEarned)}</div></div>
+        </div>
+      </div>
+      
+      <button id="watchAdBtn" class="btn btn-ad">🎬 Watch Ad & Submit Request (+$${EARN_PER_REQUEST.toFixed(4)})</button>
+      <button id="withdrawBtn" class="btn btn-primary" ${balance < MIN_WITHDRAW ? 'disabled' : ''}>
+        ${balance >= MIN_WITHDRAW ? `💰 Request Withdrawal ($${formatMoney(balance)})` : `🔒 Need $${(MIN_WITHDRAW - balance).toFixed(2)} more`}
+      </button>
+      
+      <div class="info-note">
+        🔒 <strong>How it works</strong><br>
+        • Watch ad → Submit request → Admin reviews manually (24-48h)<br>
+        • Approved requests increase your balance<br>
+        • Withdrawals processed manually after review
+      </div>
+      
+      <hr />
+      <div class="flex-between"><span>📜 Recent Activity</span><span class="request-badge">Manual approval</span></div>
+      <div class="tx-list" id="txList"></div>
+    `;
+    
+    const txContainer = document.getElementById("txList");
+    if (transactions.length === 0) {
+      txContainer.innerHTML = '<div class="tx-item">✨ No transactions yet</div>';
+    } else {
+      txContainer.innerHTML = transactions.map(tx => `
+        <div class="tx-item">
+          <span>${tx.type.toUpperCase()} ${tx.note || ''}</span>
+          <span class="${tx.amount > 0 ? 'tx-positive' : 'tx-negative'}">${tx.amount > 0 ? '+' : ''}$${Math.abs(tx.amount).toFixed(4)}</span>
+        </div>
+      `).join('');
+    }
+    
+    document.getElementById("logoutBtn")?.addEventListener("click", () => signOut());
+    document.getElementById("watchAdBtn")?.addEventListener("click", () => requestAdWatch());
+    document.getElementById("withdrawBtn")?.addEventListener("click", () => requestWithdrawal());
+  }
+
+  function renderAuthScreen() {
+    const appDiv = document.getElementById("appRoot");
+    appDiv.innerHTML = `
+      <div style="text-align:center; margin-bottom:0.5rem;"><h1>⏱️ CentLock</h1><div class="info-note" style="margin-top:6px;">Earn by submitting requests · Manual review · Withdraw at $${MIN_WITHDRAW}</div></div>
+      <div class="auth-card">
+        <div class="info-note">🔐 Sign in to your account</div>
+        <div class="input-group"><span>📧</span><input type="email" id="loginEmail" placeholder="Email"></div>
+        <div class="input-group"><span>🔒</span><input type="password" id="loginPassword" placeholder="Password"></div>
+        <button id="loginBtn" class="btn btn-primary">Login</button>
+        <hr />
+        <div class="info-note">📝 Create a new account</div>
+        <div class="input-group"><span>📧</span><input type="email" id="regEmail" placeholder="Email"></div>
+        <div class="input-group"><span>👤</span><input type="text" id="regUsername" placeholder="Username"></div>
+        <div class="input-group"><span>🔒</span><input type="password" id="regPassword" placeholder="Password (min 6)"></div>
+        <button id="registerBtn" class="btn btn-outline">Sign Up</button>
+        <div class="warning-note" style="margin-top:0.8rem;">💡 Admin controls all balance updates. No automatic credits.</div>
+      </div>
+    `;
+    document.getElementById("loginBtn")?.addEventListener("click", async () => {
+      const email = document.getElementById("loginEmail").value;
+      const pwd = document.getElementById("loginPassword").value;
+      if (await signIn(email, pwd)) {
+        currentUser = auth.currentUser;
+        await loadUserData();
+        renderDashboard();
+      }
+    });
+    document.getElementById("registerBtn")?.addEventListener("click", async () => {
+      const email = document.getElementById("regEmail").value;
+      const username = document.getElementById("regUsername").value;
+      const pwd = document.getElementById("regPassword").value;
+      if (pwd.length < 6) { alert("Password must be at least 6 characters"); return; }
+      await signUp(email, pwd, username);
+    });
+  }
+
+  // ======================== FIREBASE AUTH STATE ========================
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      currentUser = user;
+      await loadUserData();
+      renderDashboard();
+    } else {
+      resetAppState();
+      renderAuthScreen();
+    }
+  });
+  
+  if (!auth.currentUser) renderAuthScreen();
+</script>
+</body>
+</html>
