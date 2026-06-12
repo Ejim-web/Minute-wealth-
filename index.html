@@ -1,1 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Firebase Test</title>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <h1>Firebase Connection Test</h1>
+  <div id="status">Testing...</div>
 
+  <script>
+    // Your Firebase config - REPLACE WITH YOUR ACTUAL CONFIG
+    const firebaseConfig = {
+      apiKey: "AIzaSyDiZsP0tcprL1xIhu-sCkGP-4Mfv_Rw9dg",
+      authDomain: "joblink-d3d17.firebaseapp.com",
+      projectId: "joblink-d3d17",
+      storageBucket: "joblink-d3d17.firebasestorage.app",
+      messagingSenderId: "462684482263",
+      appId: "1:462684482263:web:981dcbe334850ca3fe5e92"
+    };
+
+    try {
+      firebase.initializeApp(firebaseConfig);
+      document.getElementById("status").innerHTML = "✅ Firebase initialized!";
+      
+      // Test Auth
+      const auth = firebase.auth();
+      document.getElementById("status").innerHTML += "<br>✅ Auth loaded";
+      
+      // Test Firestore
+      const db = firebase.firestore();
+      document.getElementById("status").innerHTML += "<br>✅ Firestore loaded";
+      
+    } catch (error) {
+      document.getElementById("status").innerHTML = "❌ Error: " + error.message;
+    }
+  </script>
+</body>
+</html>
