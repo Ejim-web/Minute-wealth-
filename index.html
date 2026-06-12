@@ -1,1 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>CentLock · Earn 10% of Ad Revenue | Withdraw Anytime</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    }
 
+    body {
+      background: radial-gradient(circle at 10% 20%, #0b1120, #070b14);
+      min-height: 100vh;
+      padding: 1.5rem 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app-container {
+      max-width: 550px;
+      width: 100%;
+      background: rgba(12, 18, 32, 0.92);
+      backdrop-filter: blur(14px);
+      border-radius: 2.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(76, 175, 80, 0.4);
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #4CAF50, #8BC34A);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-align: center;
+    }
+
+    .tagline {
+      font-size: 0.7rem;
+      color: #8BC34A;
+      text-align: center;
+      margin: 4px 0 12px 0;
+    }
+
+    .badge {
+      background: #1e2a47;
+      padding: 0.25rem 0.8rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      color: #8BC34A;
+      display: inline-block;
+    }
+
+    .balance-card {
+      background: linear-gradient(120deg, #0f172ae0, #0a0f1fe0);
+      border-radius: 2rem;
+      padding: 1.3rem;
+      margin: 1rem 0;
+      border: 1px solid rgba(76, 175, 80, 0.4);
+      text-align: center;
+    }
+
+    .balance-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #8BC34A;
+    }
+
+    .balance-amount {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: white;
+      line-height: 1.2;
+    }
+
+    .earnings-value {
+      font-size: 1rem;
+      color: #4ade80;
+      margin-top: 6px;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 0.8rem 0;
+      padding: 0.6rem;
+      background: #0f172a99;
+      border-radius: 1.2rem;
+      font-size: 0.75rem;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.85rem;
+      border: none;
+      border-radius: 2.2rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: 0.2s;
+      background: #1e293b;
+      color: #e2e8f0;
+      margin: 0.5rem 0;
+    }
+
+    .btn-primary { background: #1e3a4a; border-bottom: 2px solid #4CAF50; color: white; }
+    .btn-success { background: #0f3d2e; border-bottom: 2px solid #4ade80; color: white; }
+    .btn-ad { background: #4a3a1e; border-bottom: 2px solid #facc15; color: white; }
+    .btn-warning { background: #4a3a1e; border-bottom: 2px solid #f97316; color: white; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .ad-container {
+      background: #1e2a47;
+      border-radius: 1.5rem;
+      padding: 1rem;
+      margin: 0.8rem 0;
+      text-align: center;
+      border: 1px dashed #4CAF50;
+    }
+
+    .info-note {
+      background: #0f3b5c30;
+      border-left: 3px solid #4CAF50;
+      padding: 0.7rem;
+      font-size: 0.7rem;
+      color: #a7f3d0;
+      border-radius: 1rem;
+      margin: 0.8rem 0;
+    }
+
+    .warning-note {
+      background: #facc1510;
+      border-left: 3px solid #facc15;
+      padding: 0.7rem;
+      font-size: 0.7rem;
+      color: #fde047;
+      border-radius: 1rem;
+      margin: 0.8rem 0;
+    }
+
+    .progress-bar {
+      background: #1e293b;
+      border-radius: 1rem;
+      height: 10px;
+      margin: 0.8rem 0;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      background: linear-gradient(90deg, #4CAF50, #8BC34A);
+      height: 100%;
+      width: 0%;
+      border-radius: 1rem;
+      transition: width 0.3s;
+    }
+
+    .tx-list {
+      max-height: 240px;
+      overflow-y: auto;
+      font-size: 0.7rem;
+      background: #02061733;
+      border-radius: 1.2rem;
+      padding: 0.4rem;
+      margin-top: 0.5rem;
+    }
+
+    .tx-item {
+      border-bottom: 1px solid #1e293b;
+      padding: 0.6rem;
+      color: #cbd5e6;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .positive { color: #4ade80; font-weight: 500; }
+
+    .logout-btn {
+      background: none;
+      border: 1px solid #334155;
+      color: #a0afc5;
+      border-radius: 2rem;
+      padding: 0.35rem 1rem;
+      font-size: 0.7rem;
+      cursor: pointer;
+    }
+
+    .flex-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    hr {
+      border-color: #1e2a47;
+      margin: 1rem 0;
+    }
+
+    .auth-card {
+      background: #0b1120cc;
+      border-radius: 1.8rem;
+      padding: 1.3rem;
+    }
+
+    .input-group {
+      background: #0f172a;
+      border-radius: 2rem;
+      padding: 0.2rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin: 0.8rem 0;
+      border: 1px solid #2d3a5e;
+    }
+
+    .input-group input {
+      background: transparent;
+      border: none;
+      padding: 0.8rem 0;
+      flex: 1;
+      color: white;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .referral-code {
+      background: #0f172a;
+      padding: 0.4rem 0.8rem;
+      border-radius: 1.2rem;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #8BC34A;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+<div class="app-container" id="appRoot">💰 Loading CentLock...</div>
+
+<script>
+  // =====================================================
+  // CENTLOCK - 10% AD REVENUE SHARE MODEL (FINAL)
+  // Users earn 10% of every ad they watch. Withdraw anytime after reaching minimum.
+  // =====================================================
+  
+  // ------------------- CONFIGURATION -------------------
+  const AD_REVENUE_PER_VIEW = 0.03;      // Your estimated revenue per ad (Adsterra, PropellerAds etc)
+  const USER_SHARE_PERCENT = 0.10;       // 10% of ad revenue goes to user
+  const MIN_CASHOUT_AMOUNT = 1.00;       // Minimum $1 to withdraw (change to $2, $5, $10 anytime)
+  
+  // Calculated value: user earns this much per ad watch
+  const USER_EARNINGS_PER_AD = AD_REVENUE_PER_VIEW * USER_SHARE_PERCENT;
+  
+  // Storage keys
+  const STORAGE_USERS = "centlock_10percent_final";
+  const STORAGE_SESSION = "centlock_10percent_session";
+
+  function generateId() { return Date.now() + '-' + Math.random().toString(36).substring(2, 10); }
+
+  let currentUser = null;
+  let users = [];
+
+  // ------------------- USER HELPERS -------------------
+  function loadUsers() {
+    const stored = localStorage.getItem(STORAGE_USERS);
+    if (stored) {
+      users = JSON.parse(stored);
+    } else {
+      // demo user with some initial balance to show how it works
+      users = [{
+        id: "1",
+        username: "demo",
+        password: "demo123",
+        balance: 0.42,                   // current withdrawable balance (10% of ad earnings)
+        totalEarned: 0.68,
+        totalAdsWatched: 14,
+        withdrawalRequests: [],
+        referralCode: "DEMO100",
+        referredBy: null,
+        createdAt: Date.now(),
+        transactions: [
+          { id: "tx_init", type: "signup_bonus", amount: 0.10, date: Date.now() - 86400000, note: "🎁 Signup bonus +$0.10" },
+          { id: "tx_ad1", type: "ad_earnings", amount: 0.003, date: Date.now() - 70000000, note: "📺 Ad watch" },
+          { id: "tx_ad2", type: "ad_earnings", amount: 0.003, date: Date.now() - 60000000, note: "📺 Ad watch" }
+        ]
+      }];
+      localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+    }
+  }
+
+  function saveUsers() { localStorage.setItem(STORAGE_USERS, JSON.stringify(users)); }
+  
+  function loadSession() {
+    const sess = localStorage.getItem(STORAGE_SESSION);
+    if (sess) {
+      const found = users.find(u => u.id === sess);
+      if (found) currentUser = found;
+      else localStorage.removeItem(STORAGE_SESSION);
+    }
+  }
+  
+  function saveSession(uid) { localStorage.setItem(STORAGE_SESSION, uid); }
+  function clearSession() { localStorage.removeItem(STORAGE_SESSION); }
+  function findUserByUsername(uname) { return users.find(u => u.username === uname); }
+  function findUserByReferralCode(code) { return users.find(u => u.referralCode === code); }
+
+  function generateReferralCode(username) {
+    const prefix = username.slice(0, 4).toUpperCase();
+    const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+    return `${prefix}${random}`;
+  }
+
+  function register(username, password, referralCode = null) {
+    if (!username?.trim() || !password?.trim()) return { success: false, message: "Username & password required" };
+    if (findUserByUsername(username)) return { success: false, message: "Username already taken" };
+    
+    let referrer = null;
+    if (referralCode) {
+      referrer = findUserByReferralCode(referralCode.toUpperCase());
+      if (referrer) {
+        // referrer gets $0.50 bonus
+        referrer.balance += 0.50;
+        referrer.totalEarned += 0.50;
+        addTransaction(referrer, "referral_bonus", 0.50, `📎 Referral bonus: ${username} joined! +$0.50`);
+        saveUsers();
+      }
+    }
+    
+    const newUser = {
+      id: generateId(),
+      username: username.trim(),
+      password: password.trim(),
+      balance: 0.10,                    // $0.10 signup bonus
+      totalEarned: 0.10,
+      totalAdsWatched: 0,
+      withdrawalRequests: [],
+      referralCode: generateReferralCode(username),
+      referredBy: referrer ? referrer.username : null,
+      createdAt: Date.now(),
+      transactions: [
+        { id: "tx_welcome", type: "signup_bonus", amount: 0.10, date: Date.now(), note: "🎁 Welcome bonus: +$0.10" }
+      ]
+    };
+    
+    users.push(newUser);
+    saveUsers();
+    const msg = `✅ Account created! You got $0.10 bonus. ${referrer ? "Your referrer got $0.50!" : "Invite friends to earn $0.50 each!"}`;
+    return { success: true, message: msg };
+  }
+
+  function login(username, password) {
+    // Admin login
+    if (username === "admin" && password === "admin123") {
+      currentUser = { isAdmin: true, username: "Admin" };
+      return { success: true };
+    }
+    const user = findUserByUsername(username);
+    if (!user || user.password !== password) return { success: false, message: "Invalid username or password" };
+    currentUser = user;
+    saveSession(user.id);
+    return { success: true };
+  }
+
+  function logout() {
+    currentUser = null;
+    clearSession();
+    renderApp();
+  }
+
+  function addTransaction(user, type, amount, note) {
+    if (!user.transactions) user.transactions = [];
+    user.transactions.unshift({
+      id: generateId(),
+      type: type,
+      amount: amount,
+      date: Date.now(),
+      note: note
+    });
+    if (user.transactions.length > 55) user.transactions.pop();
+    saveUsers();
+  }
+
+  // ------------------- CORE: WATCH AD & EARN 10% -------------------
+  function watchAd() {
+    if (!currentUser || currentUser.isAdmin) {
+      alert("Please login first");
+      return;
+    }
+    
+    // Simulate ad watch – REPLACE THIS BLOCK WITH YOUR REAL AD NETWORK CODE
+    // (Adsterra, PropellerAds, Google AdSense etc.)
+    // After user finishes watching the ad, the code below runs.
+    
+    const earnings = USER_EARNINGS_PER_AD;
+    currentUser.balance += earnings;
+    currentUser.totalEarned += earnings;
+    currentUser.totalAdsWatched = (currentUser.totalAdsWatched || 0) + 1;
+    
+    addTransaction(currentUser, "ad_earnings", earnings, 
+      `📺 Watched ad +$${earnings.toFixed(4)} (10% of $${AD_REVENUE_PER_VIEW})`);
+    saveUsers();
+    
+    // Show immediate feedback
+    alert(`🎬 +$${earnings.toFixed(4)} earned!\n\nYou get 10% of every ad.\nNew balance: $${currentUser.balance.toFixed(2)}`);
+    renderApp();
+  }
+
+  // ------------------- REQUEST WITHDRAWAL -------------------
+  function requestWithdrawal() {
+    if (!currentUser || currentUser.isAdmin) return { success: false, message: "Not logged in" };
+    
+    if (currentUser.balance < MIN_CASHOUT_AMOUNT) {
+      const needed = MIN_CASHOUT_AMOUNT - currentUser.balance;
+      return { success: false, message: `💸 Minimum withdrawal: $${MIN_CASHOUT_AMOUNT}. Need $${needed.toFixed(2)} more. Keep watching ads!` };
+    }
+    
+    // Create withdrawal request for admin
+    const request = {
+      id: generateId(),
+      userId: currentUser.id,
+      username: currentUser.username,
+      amount: currentUser.balance,
+      status: "pending",
+      requestDate: Date.now()
+    };
+    
+    if (!currentUser.withdrawalRequests) currentUser.withdrawalRequests = [];
+    currentUser.withdrawalRequests.push(request);
+    
+    addTransaction(currentUser, "withdrawal_request", -currentUser.balance, 
+      `💰 Withdrawal request: $${currentUser.balance.toFixed(2)} (pending admin payment)`);
+    saveUsers();
+    
+    return { success: true, message: `✅ Withdrawal request for $${currentUser.balance.toFixed(2)} submitted. Admin will pay within 7 days.` };
+  }
+
+  // ------------------- ADMIN FUNCTIONS -------------------
+  function adminGetPendingWithdrawals() {
+    const pending = [];
+    for (const user of users) {
+      if (user.withdrawalRequests) {
+        for (const req of user.withdrawalRequests) {
+          if (req.status === "pending") {
+            pending.push({ ...req, user });
+          }
+        }
+      }
+    }
+    return pending;
+  }
+
+  function adminApproveWithdrawal(requestId) {
+    for (const user of users) {
+      const req = user.withdrawalRequests?.find(r => r.id === requestId);
+      if (req && req.status === "pending") {
+        req.status = "paid";
+        req.paidDate = Date.now();
+        // Reset user balance after payout
+        user.balance = 0;
+        addTransaction(user, "withdrawal_paid", -req.amount, `✅ Withdrawal paid: $${req.amount.toFixed(2)}`);
+        saveUsers();
+        return { success: true, message: `💰 Paid $${req.amount.toFixed(2)} to ${user.username}` };
+      }
+    }
+    return { success: false, message: "Request not found" };
+  }
+
+  // Helper to format numbers and dates
+  function formatMoney(v) { return v.toFixed(2); }
+  function formatDate(ts) { return new Date(ts).toLocaleString(); }
+
+  // ------------------- RENDER UI -------------------
+  function renderApp() {
+    const root = document.getElementById("appRoot");
+    if (!root) return;
+
+    // ---------- ADMIN DASHBOARD ----------
+    if (currentUser?.isAdmin) {
+      const pendingWithdrawals = adminGetPendingWithdrawals();
+      root.innerHTML = `
+        <div class="flex-between">
+          <h1>👑 CentLock Admin</h1>
+          <button id="logoutBtn" class="logout-btn">Logout</button>
+        </div>
+        <div class="balance-card">
+          <div class="balance-label">💰 PENDING WITHDRAWALS</div>
+          <div class="balance-amount">${pendingWithdrawals.length}</div>
+          <div class="stats-row">Total: $${formatMoney(pendingWithdrawals.reduce((sum, r) => sum + r.amount, 0))}</div>
+        </div>
+        <div id="withdrawalsSection"></div>
+      `;
+      
+      const section = document.getElementById("withdrawalsSection");
+      if (pendingWithdrawals.length === 0) {
+        section.innerHTML = '<div class="info-note">✅ No pending withdrawals. Great job!</div>';
+      } else {
+        section.innerHTML = pendingWithdrawals.map(req => `
+          <div class="balance-card" style="margin: 0.8rem 0; padding: 1rem;">
+            <div><strong>${req.username}</strong></div>
+            <div>Amount: <span class="positive">$${req.amount.toFixed(2)}</span></div>
+            <div>📅 Requested: ${formatDate(req.requestDate)}</div>
+            <button id="approve_${req.id}" class="btn btn-success" style="margin-top: 0.6rem;">✅ Approve & Send Payment</button>
+          </div>
+        `).join('');
+        
+        for (const req of pendingWithdrawals) {
+          document.getElementById(`approve_${req.id}`)?.addEventListener("click", () => {
+            const result = adminApproveWithdrawal(req.id);
+            alert(result.message);
+            renderApp();
+          });
+        }
+      }
+      
+      document.getElementById("logoutBtn")?.addEventListener("click", () => logout());
+      return;
+    }
+
+    // ---------- LOGIN / REGISTER SCREEN ----------
+    if (!currentUser) {
+      root.innerHTML = `
+        <div style="text-align:center;">
+          <h1>💰 CentLock</h1>
+          <div class="tagline">You keep 10% of every ad you watch</div>
+          <div class="badge" style="margin-top: 6px;">🎁 $0.10 FREE on signup + $0.50 per referral</div>
+        </div>
+        <div class="auth-card">
+          <div class="info-note">✨ <strong>How it works:</strong> Watch ads → Earn 10% of ad revenue → Withdraw at $${MIN_CASHOUT_AMOUNT}</div>
+          <div class="auth-title" style="color:#8BC34A; margin-bottom: 8px;">🔐 Login</div>
+          <div class="input-group"><span>👤</span><input id="loginUser" placeholder="Username"></div>
+          <div class="input-group"><span>🔒</span><input id="loginPass" type="password" placeholder="Password"></div>
+          <button id="loginBtn" class="btn btn-primary">Login</button>
+          <hr />
+          <div class="auth-title" style="color:#8BC34A; margin-bottom: 8px;">📝 Create Account</div>
+          <div class="input-group"><span>👤</span><input id="regUser" placeholder="Username"></div>
+          <div class="input-group"><span>🔒</span><input id="regPass" type="password" placeholder="Password"></div>
+          <div class="input-group"><span>🔗</span><input id="regReferral" placeholder="Referral code (optional)"></div>
+          <button id="registerBtn" class="btn btn-success">Get $0.10 Free</button>
+          <div class="warning-note" style="margin-top: 1rem;">Demo: demo / demo123 | Admin: admin / admin123</div>
+        </div>
+      `;
+      document.getElementById("loginBtn")?.addEventListener("click", () => {
+        const res = login(document.getElementById("loginUser").value, document.getElementById("loginPass").value);
+        if (!res.success) alert(res.message);
+        else renderApp();
+      });
+      document.getElementById("registerBtn")?.addEventListener("click", () => {
+        const res = register(
+          document.getElementById("regUser").value,
+          document.getElementById("regPass").value,
+          document.getElementById("regReferral").value
+        );
+        alert(res.message);
+      });
+      return;
+    }
+
+    // ---------- USER DASHBOARD (MAIN) ----------
+    const progressPercent = Math.min((currentUser.balance / MIN_CASHOUT_AMOUNT) * 100, 100);
+    const canWithdraw = currentUser.balance >= MIN_CASHOUT_AMOUNT;
+    const pendingRequests = currentUser.withdrawalRequests?.filter(r => r.status === "pending") || [];
+    const adsNeeded = Math.ceil((MIN_CASHOUT_AMOUNT - currentUser.balance) / USER_EARNINGS_PER_AD);
+    
+    root.innerHTML = `
+      <div class="flex-between">
+        <h1>💰 CentLock</h1>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+      </div>
+      <div class="tagline">@${currentUser.username} · 10% ad revenue share</div>
+
+      <div class="balance-card">
+        <div class="balance-label">💵 YOUR EARNINGS (withdrawable)</div>
+        <div class="balance-amount">$${currentUser.balance.toFixed(2)}</div>
+        <div class="earnings-value">🎯 You keep 10% of every ad</div>
+        <div class="progress-bar"><div class="progress-fill" style="width: ${progressPercent}%;"></div></div>
+        <div class="stats-row">
+          <span>📊 $${currentUser.balance.toFixed(2)} / $${MIN_CASHOUT_AMOUNT}</span>
+          <span>📺 Ads watched: ${currentUser.totalAdsWatched || 0}</span>
+          <span>💰 Total earned: $${currentUser.totalEarned.toFixed(2)}</span>
+        </div>
+      </div>
+
+      <div class="ad-container">
+        <div style="font-size:0.8rem; color:#8BC34A; margin-bottom: 6px;">📺 WATCH ADS & EARN MONEY</div>
+        <div style="font-size:0.65rem; color:#a0afc5; margin-bottom: 10px;">Each ad pays you ~$${USER_EARNINGS_PER_AD.toFixed(4)} (10% of ad revenue)</div>
+        <button id="watchAdBtn" class="btn btn-ad">🎬 Watch Ad → +$${USER_EARNINGS_PER_AD.toFixed(4)}</button>
+        ${!canWithdraw ? `<div style="font-size:0.6rem; color:#facc15; margin-top: 8px;">⏳ ~${adsNeeded} more ads to reach $${MIN_CASHOUT_AMOUNT}</div>` : ''}
+      </div>
+
+      <button id="withdrawBtn" class="btn ${canWithdraw ? 'btn-primary' : 'btn-warning'}" ${!canWithdraw ? 'disabled' : ''}>
+        ${canWithdraw ? `💰 Withdraw Now ($${currentUser.balance.toFixed(2)})` : `🔒 Need $${(MIN_CASHOUT_AMOUNT - currentUser.balance).toFixed(2)} more to withdraw`}
+      </button>
+
+      ${pendingRequests.length > 0 ? `<div class="warning-note">⏳ You have ${pendingRequests.length} pending withdrawal request(s). Admin will pay within 7 days.</div>` : ""}
+
+      <div class="info-note">
+        📌 <strong>How CentLock works (fair & transparent):</strong><br>
+        • You earn <strong>10% of every ad you watch</strong><br>
+        • Example: Ad pays $0.03 → You get $0.003 instantly<br>
+        • Withdraw when balance reaches <strong>$${MIN_CASHOUT_AMOUNT}</strong><br>
+        • Invite friends → <strong>$0.50 bonus</strong> per referral
+      </div>
+      
+      <div class="warning-note">
+        🎯 <strong>Your referral code:</strong> <span class="referral-code">${currentUser.referralCode}</span><br>
+        Share this code with friends. When they sign up, you get $0.50!
+      </div>
+
+      <hr />
+      <div class="flex-between">
+        <span>📜 Earnings History</span>
+        <span class="badge">💰 10% share</span>
+      </div>
+      <div class="tx-list">
+        ${(currentUser.transactions || []).slice(0, 18).map(tx => `
+          <div class="tx-item">
+            <span>${tx.type.toUpperCase()} ${tx.note || ''}</span>
+            <span class="positive">${tx.amount > 0 ? '+' : ''}$${Math.abs(tx.amount).toFixed(4)}</span>
+            <span style="font-size:0.6rem;">${formatDate(tx.date)}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    // Event handlers
+    document.getElementById("watchAdBtn")?.addEventListener("click", () => {
+      watchAd();
+    });
+
+    document.getElementById("withdrawBtn")?.addEventListener("click", () => {
+      if (!canWithdraw) {
+        alert(`💡 Need $${(MIN_CASHOUT_AMOUNT - currentUser.balance).toFixed(2)} more to withdraw. Keep watching ads!`);
+        return;
+      }
+      const result = requestWithdrawal();
+      alert(result.message);
+      if (result.success) renderApp();
+    });
+
+    document.getElementById("logoutBtn")?.addEventListener("click", () => logout());
+  }
+
+  // ------------------- INITIALIZE APP -------------------
+  function init() {
+    loadUsers();
+    loadSession();
+    renderApp();
+    // auto-refresh UI every 30 seconds (keeps streak feeling alive)
+    setInterval(() => {
+      if (currentUser && !currentUser.isAdmin) {
+        renderApp();
+      }
+    }, 30000);
+  }
+  init();
+</script>
+</body>
+</html>
