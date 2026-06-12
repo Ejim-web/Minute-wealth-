@@ -1,8 +1,23 @@
 <!DOCTYPE html>
 <html>
-<head><title>Test</title></head>
+<head><title>Firebase Test</title></head>
 <body>
-  <h1>GitHub Pages is Working!</h1>
-  <p>If you see this, your GitHub Pages is working correctly.</p>
+  <h1>Firebase Connection Test</h1>
+  <div id="status">Testing...</div>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDiZsP0tcprL1xIhu-sCkGP-4Mfv_Rw9dg",
+      authDomain: "joblink-d3d17.firebaseapp.com",
+      projectId: "joblink-d3d17",
+      storageBucket: "joblink-d3d17.firebasestorage.app",
+      messagingSenderId: "462684482263",
+      appId: "1:462684482263:web:981dcbe334850ca3fe5e92"
+    };
+    firebase.initializeApp(firebaseConfig);
+    document.getElementById("status").innerHTML = "✅ Firebase connected!";
+  </script>
 </body>
 </html>
