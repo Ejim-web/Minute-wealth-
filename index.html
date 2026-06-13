@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>CentLock · Auto Earning Dashboard</title>
+  <title>CentLock · Earn Money Passively</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -12,36 +12,61 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
     body { background: #0a0f1a; min-height: 100vh; padding: 1rem; display: flex; justify-content: center; align-items: center; }
-    .container { max-width: 500px; width: 100%; background: #0f1422; border-radius: 2rem; padding: 1.5rem; border: 1px solid #4CAF50; position: relative; }
-    h1 { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #4CAF50, #81C784); -webkit-background-clip: text; background-clip: text; color: transparent; text-align: center; }
-    .balance-card { background: linear-gradient(135deg, #1a1f30, #0f1422); border-radius: 1.5rem; padding: 1.2rem; margin: 1rem 0; text-align: center; border: 1px solid #2a2f42; }
-    .balance-amount { font-size: 2.8rem; font-weight: 800; color: white; }
-    .progress-bar { background: #2a2f42; border-radius: 1rem; height: 8px; margin: 0.8rem 0; overflow: hidden; }
+    .container { max-width: 550px; width: 100%; background: #0f1422; border-radius: 2rem; padding: 1.5rem; border: 1px solid #4CAF50; }
+    h1 { font-size: 1.6rem; font-weight: 800; background: linear-gradient(135deg, #4CAF50, #81C784); -webkit-background-clip: text; background-clip: text; color: transparent; text-align: center; }
+    
+    .tabs { display: flex; gap: 0.5rem; margin: 1rem 0 0.8rem; background: #0f172a; border-radius: 2rem; padding: 0.3rem; flex-wrap: wrap; }
+    .tab { flex: 1; text-align: center; padding: 0.5rem; border-radius: 2rem; cursor: pointer; font-weight: 600; font-size: 0.7rem; transition: 0.2s; color: #8aa0bc; }
+    .tab.active { background: #4CAF50; color: #0a0f1a; }
+    
+    .balance-card { background: linear-gradient(135deg, #1a1f30, #0f1422); border-radius: 1.5rem; padding: 1rem; margin: 1rem 0; text-align: center; border: 1px solid #2a2f42; }
+    .balance-amount { font-size: 2.5rem; font-weight: 800; color: white; }
+    .progress-bar { background: #2a2f42; border-radius: 1rem; height: 6px; margin: 0.5rem 0; overflow: hidden; }
     .progress-fill { background: linear-gradient(90deg, #4CAF50, #81C784); height: 100%; width: 0%; transition: width 0.3s; }
     .stats { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
-    .stat { background: #0f1422; flex: 1; padding: 0.5rem; border-radius: 1rem; text-align: center; }
-    .stat-label { font-size: 0.6rem; color: #8aa0bc; text-transform: uppercase; }
-    .stat-value { font-size: 1rem; font-weight: 700; color: white; }
-    .btn { width: 100%; padding: 0.9rem; border: none; border-radius: 2rem; font-weight: 700; font-size: 0.9rem; cursor: pointer; margin: 0.5rem 0; transition: 0.2s; }
+    .stat { background: #0f1422; flex: 1; padding: 0.3rem; border-radius: 1rem; text-align: center; }
+    .stat-label { font-size: 0.55rem; color: #8aa0bc; text-transform: uppercase; }
+    .stat-value { font-size: 0.9rem; font-weight: 700; color: white; }
+    
+    .btn { width: 100%; padding: 0.8rem; border: none; border-radius: 2rem; font-weight: 700; font-size: 0.9rem; cursor: pointer; margin: 0.5rem 0; transition: 0.2s; }
     .btn-primary { background: linear-gradient(135deg, #2E7D32, #4CAF50); color: white; }
     .btn-outline { background: transparent; border: 1px solid #4CAF50; color: #4CAF50; }
-    .btn-danger { background: #dc2626; color: white; }
-    .btn-return { background: linear-gradient(135deg, #F57C00, #FFB74D); color: #0a0f1a; font-weight: 800; }
-    .input-group { background: #0f1422; border-radius: 2rem; padding: 0.3rem 1.2rem; display: flex; gap: 0.5rem; margin: 0.8rem 0; border: 1px solid #2a2f42; }
+    .btn-warning { background: #F57C00; color: white; }
+    .btn-success { background: #0f3d2e; border-bottom: 2px solid #4ade80; color: white; }
+    
+    .ad-status { background: #1e2a3a; border-radius: 1rem; padding: 0.6rem; margin: 0.5rem 0; text-align: center; border: 1px dashed #4CAF50; }
+    .countdown { font-size: 1.8rem; font-weight: 800; color: #F57C00; margin: 0.2rem 0; }
+    .status-text { font-size: 0.7rem; color: #8aa0bc; }
+    
+    .url-bar { display: flex; gap: 0.5rem; background: #0f172a; border-radius: 2rem; padding: 0.2rem 0.5rem 0.2rem 1rem; border: 1px solid #2a2f42; margin-bottom: 1rem; }
+    .url-bar input { flex: 1; background: transparent; border: none; padding: 0.7rem 0; color: white; font-size: 0.85rem; outline: none; }
+    .url-bar button { background: #4CAF50; border: none; border-radius: 2rem; padding: 0.4rem 1rem; color: white; font-weight: bold; cursor: pointer; }
+    .quick-links { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .quick-chip { background: #1e2a3a; padding: 0.3rem 0.8rem; border-radius: 2rem; font-size: 0.65rem; color: #8BC34A; cursor: pointer; border: 1px solid #2a2f42; }
+    
+    .platform-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin: 1rem 0; }
+    .platform-card { background: #0f172a; border-radius: 1rem; padding: 0.6rem 0.2rem; text-align: center; cursor: pointer; border: 1px solid #2a2f42; transition: 0.1s; }
+    .platform-card:active { transform: scale(0.96); background: #1e2a3a; }
+    .platform-icon { font-size: 1.5rem; }
+    .platform-name { font-size: 0.65rem; font-weight: 600; color: white; margin-top: 0.2rem; }
+    
+    .input-group { background: #0f1422; border-radius: 2rem; padding: 0.2rem 1rem; display: flex; gap: 0.5rem; margin: 0.8rem 0; border: 1px solid #2a2f42; }
     .input-group input { background: transparent; border: none; flex: 1; color: white; font-size: 0.9rem; outline: none; }
-    .info-card { background: #0f3b5c30; border-left: 3px solid #4CAF50; padding: 0.8rem; border-radius: 1rem; font-size: 0.7rem; color: #C8E6C9; margin: 0.8rem 0; }
-    .warning-card { background: #facc1510; border-left: 3px solid #facc15; padding: 0.8rem; border-radius: 1rem; font-size: 0.7rem; color: #fde047; margin: 0.8rem 0; }
-    .ad-container { background: #1e2a3a; border-radius: 1rem; padding: 0.5rem; margin: 0.5rem 0; text-align: center; font-size: 0.7rem; color: #8aa0bc; border: 1px dashed #4CAF50; }
-    .tx-list { max-height: 200px; overflow-y: auto; margin-top: 0.5rem; }
-    .tx-item { background: #0f1422; padding: 0.6rem; border-radius: 1rem; margin-bottom: 0.4rem; display: flex; justify-content: space-between; font-size: 0.7rem; }
-    .positive { color: #4ade80; font-weight: 600; }
-    .negative { color: #f87171; }
-    hr { border-color: #2a2f42; margin: 1rem 0; }
-    .auto-badge { background: #4CAF50; color: #0a0f1a; padding: 0.2rem 0.5rem; border-radius: 1rem; font-size: 0.6rem; font-weight: bold; display: inline-block; }
+    .info-card { background: #0f3b5c30; border-left: 3px solid #4CAF50; padding: 0.6rem; border-radius: 1rem; font-size: 0.65rem; color: #C8E6C9; margin: 0.5rem 0; }
+    .warning-card { background: #facc1510; border-left: 3px solid #facc15; padding: 0.6rem; border-radius: 1rem; font-size: 0.65rem; color: #fde047; margin: 0.5rem 0; }
+    .success-card { background: #4ade8010; border-left: 3px solid #4ade80; padding: 0.6rem; border-radius: 1rem; font-size: 0.65rem; color: #4ade80; margin: 0.5rem 0; }
+    .tx-list { max-height: 180px; overflow-y: auto; margin-top: 0.5rem; }
+    .tx-item { background: #0f1422; padding: 0.4rem; border-radius: 0.8rem; margin-bottom: 0.3rem; display: flex; justify-content: space-between; font-size: 0.65rem; }
+    .positive { color: #4ade80; }
     .flex-between { display: flex; justify-content: space-between; align-items: center; }
-    .toast-message { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #4CAF50; color: #0a0f1a; padding: 0.8rem 1.5rem; border-radius: 2rem; font-weight: bold; z-index: 1000; animation: fadeOut 3s ease-in-out; }
-    @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
-    .return-hint { background: #F57C00; color: #0a0f1a; padding: 0.5rem; border-radius: 1rem; text-align: center; margin: 0.5rem 0; font-size: 0.7rem; font-weight: bold; cursor: pointer; }
+    hr { border-color: #2a2f42; margin: 0.8rem 0; }
+    .payment-section { background: #1e2a3a; border-radius: 1rem; padding: 0.8rem; margin: 0.5rem 0; }
+    .leaderboard { background: #0f172a; border-radius: 1rem; padding: 0.5rem; margin-top: 0.5rem; }
+    .leaderboard-item { display: flex; justify-content: space-between; padding: 0.3rem; border-bottom: 1px solid #2a2f42; font-size: 0.7rem; }
+    .rank-1 { color: gold; font-weight: bold; }
+    .rank-2 { color: silver; }
+    .rank-3 { color: #cd7f32; }
+    .daily-bonus { background: #0f3d2e; border-radius: 1rem; padding: 0.5rem; text-align: center; margin: 0.5rem 0; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -67,232 +92,341 @@
   const db = firebase.firestore();
 
   // ============================================================
-  // APP CONFIGURATION
+  // IMPROVED APP CONFIGURATION (More Attractive)
   // ============================================================
-  const AUTO_EARN_PER_AD = 0.001;
-  const MIN_WITHDRAW = 10.00;
-  const AD_INTERVAL_SECONDS = 30;
+  const AD_URL = "https://omg10.com/4/11140123";
+  const EARN_PER_AD = 0.001;
+  const MIN_WITHDRAW = 5.00;           // LOWERED from $10 to $5
+  const REFERRAL_BONUS = 0.50;         // $0.50 per referral
+  const DAILY_BONUS = 0.05;            // $0.05 daily login bonus
+  const AD_WATCH_SECONDS = 12;         // Reduced from 20 to 12 seconds
+  const CYCLE_SECONDS = 45;            // Faster ads (45 seconds)
+  const MAX_ADS_PER_HOUR = 80;         // Higher limit
 
   let currentUser = null;
   let userData = null;
-  let adInterval = null;
+  let currentTab = "earn";
+  let cycleTimeout = null;
+  let adWindow = null;
+  let isAdShowing = false;
+  
+  let adCountThisHour = 0;
+  let lastResetTime = Date.now();
+  let lastFetchTime = 0;
+  let cachedTransactions = [];
+  let lastDailyBonusDate = null;
 
-  // Show temporary message
-  function showToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'toast-message';
-    toast.innerText = message;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+  // ============================================================
+  // PLATFORMS DATA
+  // ============================================================
+  const platforms = {
+    crypto: [
+      { name: "Binance", icon: "🟡", url: "https://www.binance.com" },
+      { name: "Coinbase", icon: "🔵", url: "https://www.coinbase.com" },
+      { name: "Bybit", icon: "🟣", url: "https://www.bybit.com" },
+      { name: "OKX", icon: "🟠", url: "https://www.okx.com" },
+      { name: "KuCoin", icon: "🟢", url: "https://www.kucoin.com" },
+      { name: "Gate.io", icon: "🔴", url: "https://www.gate.io" }
+    ],
+    payments: [
+      { name: "PayPal", icon: "🔷", url: "https://www.paypal.com" },
+      { name: "Payoneer", icon: "🌍", url: "https://www.payoneer.com" },
+      { name: "Wise", icon: "💷", url: "https://www.wise.com" },
+      { name: "Cash App", icon: "💰", url: "https://cash.app" },
+      { name: "Remitly", icon: "📱", url: "https://www.remitly.com" },
+      { name: "Skrill", icon: "💙", url: "https://www.skrill.com" }
+    ],
+    social: [
+      { name: "WhatsApp", icon: "💬", url: "https://web.whatsapp.com" },
+      { name: "Telegram", icon: "✈️", url: "https://web.telegram.org" },
+      { name: "Facebook", icon: "📘", url: "https://www.facebook.com" },
+      { name: "Instagram", icon: "📷", url: "https://www.instagram.com" },
+      { name: "Twitter", icon: "🐦", url: "https://twitter.com" },
+      { name: "TikTok", icon: "🎵", url: "https://www.tiktok.com" }
+    ],
+    earnMoney: [
+      { name: "Upwork", icon: "💼", url: "https://www.upwork.com" },
+      { name: "Fiverr", icon: "🎯", url: "https://www.fiverr.com" },
+      { name: "YouTube", icon: "▶️", url: "https://www.youtube.com" },
+      { name: "Honeygain", icon: "🍯", url: "https://www.honeygain.com" },
+      { name: "Swagbucks", icon: "🎯", url: "https://www.swagbucks.com" },
+      { name: "TradingView", icon: "📈", url: "https://www.tradingview.com" }
+    ]
+  };
+
+  function openUrl(url) {
+    let finalUrl = url;
+    if (!finalUrl.startsWith('http')) finalUrl = 'https://' + finalUrl;
+    window.open(finalUrl, '_blank');
   }
 
-  // Show ad and credit user
-  async function showAdAndCredit() {
+  // ============================================================
+  // RATE LIMITING & DAILY BONUS
+  // ============================================================
+  async function canWatchAd() {
+    const now = Date.now();
+    if (now - lastResetTime > 3600000) {
+      adCountThisHour = 0;
+      lastResetTime = now;
+    }
+    
+    if (adCountThisHour >= MAX_ADS_PER_HOUR) {
+      updateAdStatus('⏰ Hourly limit reached. Come back in ' + Math.ceil((3600000 - (now - lastResetTime)) / 60000) + ' minutes!', 'error');
+      return false;
+    }
+    
+    if (document.hidden) {
+      updateAdStatus('⚠️ Please keep this tab active to earn!', 'error');
+      return false;
+    }
+    
+    return true;
+  }
+
+  async function claimDailyBonus() {
     if (!currentUser || !userData) return;
+    const today = new Date().toDateString();
+    if (userData.lastDailyBonus === today) {
+      alert("You already claimed your daily bonus today! Come back tomorrow.");
+      return;
+    }
     
-    // Open Monetag ad in new tab
-    const adWindow = window.open('https://omg10.com/4/11140123', '_blank');
+    await db.collection("users").doc(currentUser.uid).update({
+      balance: firebase.firestore.FieldValue.increment(DAILY_BONUS),
+      totalEarned: firebase.firestore.FieldValue.increment(DAILY_BONUS),
+      lastDailyBonus: today
+    });
     
-    // Show reminder to return to dashboard
-    setTimeout(() => {
-      showToast('💡 Ad opened! Watch it, then close the tab to return to your dashboard.');
-    }, 1000);
+    await loadUserData();
+    alert(`🎉 +$${DAILY_BONUS.toFixed(2)} Daily Bonus!`);
+    renderDashboard();
+  }
+
+  // ============================================================
+  // AD CYCLE (PASSIVE - NO CONFIRMATION AFTER FIRST WATCH)
+  // ============================================================
+  async function showAdAndCycle() {
+    if (!currentUser || !userData || isAdShowing) return;
+    if (!await canWatchAd()) {
+      scheduleNextAd();
+      return;
+    }
     
-    // Credit the user after delay
-    setTimeout(async () => {
-      const earnings = AUTO_EARN_PER_AD;
-      const userRef = db.collection("users").doc(currentUser.uid);
-      
-      try {
-        await db.runTransaction(async (transaction) => {
-          const doc = await transaction.get(userRef);
-          if (!doc.exists) return;
-          
-          transaction.update(userRef, {
-            balance: (doc.data().balance || 0) + earnings,
-            totalEarned: (doc.data().totalEarned || 0) + earnings,
-            totalRequests: (doc.data().totalRequests || 0) + 1
-          });
-          
-          transaction.set(userRef.collection('transactions').doc(), {
-            type: 'auto_ad',
-            amount: earnings,
-            createdAt: new Date(),
-            note: '🤖 Auto ad viewed'
-          });
+    isAdShowing = true;
+    updateAdStatus('📺 Opening ad...', 'opening');
+    
+    adWindow = window.open(AD_URL, '_blank');
+    
+    updateAdStatus(`📺 Ad open! Auto-crediting in ${AD_WATCH_SECONDS} seconds...`, 'active');
+    
+    // Auto-credit after watch time (no confirmation needed)
+    await new Promise(resolve => setTimeout(resolve, AD_WATCH_SECONDS * 1000));
+    
+    if (adWindow && !adWindow.closed) adWindow.close();
+    
+    adCountThisHour++;
+    await creditUserBatch(EARN_PER_AD);
+    await loadUserData();
+    
+    updateAdStatus(`✅ +$${EARN_PER_AD.toFixed(4)} earned! (${adCountThisHour}/${MAX_ADS_PER_HOUR} this hour)`, 'ready');
+    isAdShowing = false;
+    renderDashboard();
+    
+    scheduleNextAd();
+  }
+
+  async function creditUserBatch(amount) {
+    const userRef = db.collection("users").doc(currentUser.uid);
+    try {
+      await db.runTransaction(async (transaction) => {
+        const doc = await transaction.get(userRef);
+        if (!doc.exists) return;
+        transaction.update(userRef, {
+          balance: (doc.data().balance || 0) + amount,
+          totalEarned: (doc.data().totalEarned || 0) + amount,
+          totalRequests: (doc.data().totalRequests || 0) + 1,
+          lastAdTime: new Date()
         });
-        
-        const updated = await userRef.get();
-        userData = updated.data();
-        showToast(`✅ +$${earnings.toFixed(4)} earned! Balance: $${userData.balance.toFixed(2)}`);
-        renderDashboard();
-      } catch (error) {
-        console.log("Auto credit error:", error);
-      }
-    }, 5000); // Credit after 5 seconds (user has time to see ad)
+        transaction.set(userRef.collection('transactions').doc(), {
+          type: 'ad_earned', amount: amount, createdAt: new Date()
+        });
+      });
+    } catch (error) { console.log("Credit error:", error); }
   }
 
-  // Function to return to dashboard (brings this tab to front)
-  function returnToDashboard() {
-    // This brings the current tab to front
-    window.focus();
-    showToast('✅ You are back on your dashboard!');
-  }
-
-  function startAutoAds() {
-    if (adInterval) clearInterval(adInterval);
-    // First ad after 3 seconds
-    setTimeout(() => {
-      if (currentUser && userData && !userData.pendingWithdrawal) {
-        showAdAndCredit();
-      }
-    }, 3000);
-    
-    // Then every 30 seconds
-    adInterval = setInterval(() => {
-      if (currentUser && userData && !userData.pendingWithdrawal) {
-        showAdAndCredit();
-      }
-    }, AD_INTERVAL_SECONDS * 1000);
-  }
-
-  function stopAutoAds() {
-    if (adInterval) {
-      clearInterval(adInterval);
-      adInterval = null;
+  function scheduleNextAd() {
+    if (cycleTimeout) clearTimeout(cycleTimeout);
+    if (currentUser && userData && currentTab === 'earn' && !isAdShowing) {
+      cycleTimeout = setTimeout(() => {
+        showAdAndCycle();
+      }, CYCLE_SECONDS * 1000);
+      startCountdownDisplay(CYCLE_SECONDS);
     }
   }
 
+  function startCountdownDisplay(seconds) {
+    let remaining = seconds;
+    const updateDisplay = () => {
+      const timerDiv = document.getElementById('countdownTimer');
+      if (timerDiv && currentTab === 'earn') timerDiv.innerHTML = `${remaining}s`;
+      if (remaining > 0 && currentTab === 'earn') {
+        remaining--;
+        setTimeout(updateDisplay, 1000);
+      }
+    };
+    updateDisplay();
+  }
+
+  function updateAdStatus(message, type) {
+    const statusDiv = document.getElementById('adStatusMsg');
+    if (statusDiv) statusDiv.innerHTML = message;
+  }
+
+  function stopAdCycle() {
+    if (cycleTimeout) { clearTimeout(cycleTimeout); cycleTimeout = null; }
+    if (adWindow && !adWindow.closed) adWindow.close();
+    isAdShowing = false;
+  }
+
   // ============================================================
-  // AUTHENTICATION
+  // AUTHENTICATION & REFERRALS
   // ============================================================
-  async function signUp(email, password, username) {
+  function generateReferralCode(email) {
+    return email.split('@')[0].slice(0, 4).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase();
+  }
+
+  async function signUp(email, password, username, referralCode) {
     try {
       const cred = await auth.createUserWithEmailAndPassword(email, password);
       const uid = cred.user.uid;
+      
+      let referredBy = null;
+      if (referralCode) {
+        const referrers = await db.collection('users').where('referralCode', '==', referralCode.toUpperCase()).get();
+        if (!referrers.empty) {
+          const referrer = referrers.docs[0];
+          referredBy = referrer.id;
+          await db.collection('users').doc(referredBy).update({
+            balance: firebase.firestore.FieldValue.increment(REFERRAL_BONUS),
+            totalEarned: firebase.firestore.FieldValue.increment(REFERRAL_BONUS)
+          });
+        }
+      }
+      
       await db.collection("users").doc(uid).set({
-        username: username.trim(),
-        email: email,
-        balance: 0,
-        totalEarned: 0,
-        totalRequests: 0,
-        createdAt: new Date(),
-        pendingWithdrawal: null
+        username: username.trim(), email, balance: 0.10, totalEarned: 0.10, totalRequests: 0,
+        createdAt: new Date(), pendingWithdrawal: null, paymentDetails: null,
+        referralCode: generateReferralCode(email), referredBy: referredBy,
+        referralCount: 0, lastDailyBonus: null
       });
-      alert("✅ Account created! Please login.");
+      
+      alert("✅ Account created! You got $0.10 bonus. " + (referredBy ? "Your referrer got $0.50!" : "Share your code to earn $0.50 per referral!"));
       return true;
-    } catch (err) {
-      alert(err.message);
-      return false;
-    }
+    } catch (err) { alert(err.message); return false; }
   }
 
   async function signIn(email, password) {
-    try {
-      await auth.signInWithEmailAndPassword(email, password);
-      return true;
-    } catch (err) {
-      alert(err.message);
-      return false;
-    }
+    try { await auth.signInWithEmailAndPassword(email, password); return true; }
+    catch (err) { alert(err.message); return false; }
   }
 
   async function signOut() {
-    stopAutoAds();
+    stopAdCycle();
     await auth.signOut();
-    currentUser = null;
-    userData = null;
+    currentUser = null; userData = null;
     renderAuthScreen();
   }
 
   async function loadUserData() {
     if (!currentUser) return;
     const doc = await db.collection("users").doc(currentUser.uid).get();
-    if (doc.exists) {
-      userData = doc.data();
-    } else {
+    if (doc.exists) userData = doc.data();
+    else {
       await db.collection("users").doc(currentUser.uid).set({
-        username: currentUser.email.split('@')[0],
-        email: currentUser.email,
-        balance: 0,
-        totalEarned: 0,
-        totalRequests: 0,
-        createdAt: new Date(),
-        pendingWithdrawal: null
+        username: currentUser.email.split('@')[0], email: currentUser.email,
+        balance: 0.10, totalEarned: 0.10, totalRequests: 0, createdAt: new Date(),
+        pendingWithdrawal: null, paymentDetails: null, referralCode: generateReferralCode(currentUser.email),
+        referralCount: 0, lastDailyBonus: null
       });
-      userData = { balance: 0, totalEarned: 0, totalRequests: 0, username: currentUser.email.split('@')[0] };
+      userData = { balance: 0.10, totalEarned: 0.10, totalRequests: 0, username: currentUser.email.split('@')[0] };
     }
   }
 
   async function fetchTransactions() {
     if (!currentUser) return [];
-    const snap = await db.collection("users").doc(currentUser.uid).collection("transactions")
-      .orderBy("createdAt", "desc")
-      .limit(20)
-      .get();
-    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const now = Date.now();
+    if (now - lastFetchTime < 30000 && cachedTransactions.length > 0) return cachedTransactions;
+    const snap = await db.collection("users").doc(currentUser.uid).collection("transactions").orderBy("createdAt", "desc").limit(15).get();
+    cachedTransactions = snap.docs.map(d => d.data());
+    lastFetchTime = now;
+    return cachedTransactions;
+  }
+
+  async function getLeaderboard() {
+    const snap = await db.collection("users").orderBy("totalEarned", "desc").limit(10).get();
+    return snap.docs.map((doc, idx) => ({ rank: idx + 1, username: doc.data().username, earned: doc.data().totalEarned || 0 }));
+  }
+
+  async function savePaymentDetails(bank, accountNumber, accountName) {
+    await db.collection("users").doc(currentUser.uid).update({
+      paymentDetails: { bank, accountNumber, accountName, updatedAt: new Date() }
+    });
+    userData.paymentDetails = { bank, accountNumber, accountName };
+    alert("✅ Payment details saved!");
+    renderDashboard();
   }
 
   async function requestWithdrawal() {
-    if (!currentUser) return;
     const balance = userData?.balance || 0;
+    const paymentDetails = userData?.paymentDetails;
+    
+    if (!paymentDetails) { alert("❌ Please add your payment details first"); return; }
     if (balance < MIN_WITHDRAW) {
-      alert(`Minimum withdrawal is $${MIN_WITHDRAW}. Need $${(MIN_WITHDRAW - balance).toFixed(2)} more.`);
+      alert(`Need $${(MIN_WITHDRAW - balance).toFixed(2)} more. Minimum $${MIN_WITHDRAW}`);
       return;
     }
     
-    const pending = await db.collection("withdrawalRequests")
-      .where("userId", "==", currentUser.uid)
-      .where("status", "==", "pending")
-      .get();
+    const pending = await db.collection("withdrawalRequests").where("userId", "==", currentUser.uid).where("status", "==", "pending").get();
+    if (!pending.empty) { alert("You have a pending request."); return; }
     
-    if (!pending.empty) {
-      alert("You already have a pending withdrawal request.");
-      return;
-    }
+    await db.collection("withdrawalRequests").add({
+      userId: currentUser.uid, username: userData.username, amount: balance,
+      paymentDetails: paymentDetails, status: "pending", createdAt: new Date()
+    });
     
-    try {
-      await db.collection("withdrawalRequests").add({
-        userId: currentUser.uid,
-        username: userData.username,
-        amount: balance,
-        status: "pending",
-        createdAt: new Date()
-      });
-      
-      alert(`✅ Withdrawal request for $${balance.toFixed(2)} submitted. Admin will review and pay.`);
-      renderDashboard();
-    } catch (err) {
-      alert("Error: " + err.message);
-    }
+    alert(`✅ Withdrawal request for $${balance.toFixed(2)} submitted. Admin will pay within 7 days.`);
+    renderDashboard();
   }
 
-  async function renderDashboard() {
-    if (!currentUser || !userData) return;
-    
-    const balance = userData.balance || 0;
-    const totalEarned = userData.totalEarned || 0;
-    const totalRequests = userData.totalRequests || 0;
-    const progress = Math.min((balance / MIN_WITHDRAW) * 100, 100);
-    const transactions = await fetchTransactions();
-    
-    const app = document.getElementById("app");
-    app.innerHTML = `
-      <div class="flex-between">
-        <h1>💰 CentLock</h1>
-        <button id="logoutBtn" class="btn-outline" style="width: auto; padding: 0.3rem 1rem; margin: 0;">Logout</button>
+  // ============================================================
+  // RENDER FUNCTIONS
+  // ============================================================
+  function formatMoney(v) { return v.toFixed(2); }
+
+  function renderPlatforms(category) {
+    const items = platforms[category] || platforms.crypto;
+    return `
+      <div class="url-bar">
+        <input type="text" id="customUrlInput" placeholder="Enter any website URL...">
+        <button id="goUrlBtn">Go</button>
       </div>
-      <div style="font-size: 0.7rem; text-align: center; color: #8aa0bc; margin: 0.5rem 0;">👋 ${userData.username} · ${currentUser.email}</div>
-      
-      <!-- Return to Dashboard Button -->
-      <button id="returnBtn" class="btn-return">🔙 Go to Dashboard (Click after watching ad)</button>
-      
-      <div class="ad-container">
-        <span class="auto-badge">🤖 AUTO ADS ACTIVE</span>
-        <div style="margin-top: 0.3rem;">Ad opens every ${AD_INTERVAL_SECONDS} seconds</div>
-        <div style="font-size: 0.6rem; margin-top: 0.2rem;">Earning $${AUTO_EARN_PER_AD.toFixed(4)} per ad</div>
+      <div class="quick-links">
+        <span class="quick-chip" data-url="https://www.google.com">Google</span>
+        <span class="quick-chip" data-url="https://www.youtube.com">YouTube</span>
+        <span class="quick-chip" data-url="https://web.whatsapp.com">WhatsApp</span>
+        <span class="quick-chip" data-url="https://web.telegram.org">Telegram</span>
+        <span class="quick-chip" data-url="https://chat.openai.com">ChatGPT</span>
+        <span class="quick-chip" data-url="https://www.netflix.com">Netflix</span>
       </div>
-      
+      <div class="platform-grid">
+        ${items.map(p => `<div class="platform-card" data-url="${p.url}"><div class="platform-icon">${p.icon}</div><div class="platform-name">${p.name}</div></div>`).join('')}
+      </div>
+      <div class="info-card">🌐 Tap any platform or enter any URL to open it in a new tab.</div>
+    `;
+  }
+
+  function renderEarnTab(balance, totalEarned, totalRequests, progress, paymentDetails, leaderboard, canClaimDaily) {
+    return `
       <div class="balance-card">
         <div class="balance-amount">$${formatMoney(balance)}</div>
         <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%;"></div></div>
@@ -303,114 +437,177 @@
         </div>
       </div>
       
-      <div class="return-hint" id="returnHintBtn">
-        🔙 WATCHED AN AD? 👆 TAP HERE TO RETURN TO DASHBOARD
+      ${canClaimDaily ? `<div id="dailyBonusBtn" class="daily-bonus btn-success">🎁 Claim Daily Bonus (+$${DAILY_BONUS.toFixed(2)})</div>` : '<div class="info-card">🎁 Daily bonus already claimed today. Come back tomorrow!</div>'}
+      
+      <div class="ad-status">
+        <div id="adStatusMsg" class="status-text">🟢 Auto ads active</div>
+        <div class="countdown" id="countdownTimer">--s</div>
+        <div class="status-text">Next ad in...</div>
+      </div>
+      
+      <div class="payment-section">
+        <div class="info-card">💳 Withdrawal Payment Details</div>
+        <div class="input-group"><span>🏦</span><input type="text" id="bankName" placeholder="Bank/Wallet (e.g., OPay, PalmPay, GTBank)" value="${paymentDetails?.bank || ''}"></div>
+        <div class="input-group"><span>🔢</span><input type="text" id="accountNumber" placeholder="Account/Phone Number" value="${paymentDetails?.accountNumber || ''}"></div>
+        <div class="input-group"><span>👤</span><input type="text" id="accountName" placeholder="Full Name" value="${paymentDetails?.accountName || ''}"></div>
+        <button id="savePaymentBtn" class="btn-outline">💾 Save Payment Details</button>
+      </div>
+      
+      <div class="success-card">
+        🔗 <strong>Your Referral Code:</strong> <span style="font-family: monospace; font-size: 1rem;">${userData?.referralCode || 'N/A'}</span><br>
+        Share this code! You get $${REFERRAL_BONUS.toFixed(2)} for each friend who joins.
+      </div>
+      
+      <div class="info-card">
+        🤖 <strong>How It Works (Improved):</strong><br>
+        • Ad opens every ${CYCLE_SECONDS} seconds → Watch ${AD_WATCH_SECONDS}s → Auto-earn $${EARN_PER_AD.toFixed(4)}<br>
+        • No confirmation needed — fully passive!<br>
+        • Daily bonus: $${DAILY_BONUS.toFixed(2)} just for logging in<br>
+        • Referral bonus: $${REFERRAL_BONUS.toFixed(2)} per friend<br>
+        • Withdraw at $${MIN_WITHDRAW}
       </div>
       
       <button id="withdrawBtn" class="btn btn-primary" ${balance < MIN_WITHDRAW ? 'disabled' : ''}>
         ${balance >= MIN_WITHDRAW ? `💰 Withdraw $${formatMoney(balance)}` : `🔒 Need $${(MIN_WITHDRAW - balance).toFixed(2)} more`}
       </button>
       
-      <div class="info-card">
-        🤖 <strong>How Auto Ads Work:</strong><br>
-        • An ad tab opens automatically every ${AD_INTERVAL_SECONDS} seconds<br>
-        • You earn $${AUTO_EARN_PER_AD.toFixed(4)} per ad<br>
-        • After watching the ad, click <strong>"Go to Dashboard"</strong> button above<br>
-        • Keep this app open to maximize earnings!
+      <div class="leaderboard">
+        <div class="info-card" style="margin-bottom: 0.3rem;">🏆 Top Earners Leaderboard</div>
+        ${leaderboard.map(u => `
+          <div class="leaderboard-item">
+            <span class="${u.rank === 1 ? 'rank-1' : u.rank === 2 ? 'rank-2' : u.rank === 3 ? 'rank-3' : ''}">${u.rank}. ${u.username}</span>
+            <span>$${u.earned.toFixed(2)}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  async function renderDashboard() {
+    if (!currentUser || !userData) return;
+    const transactions = await fetchTransactions();
+    const balance = userData.balance || 0;
+    const totalEarned = userData.totalEarned || 0;
+    const totalRequests = userData.totalRequests || 0;
+    const progress = Math.min((balance / MIN_WITHDRAW) * 100, 100);
+    const paymentDetails = userData.paymentDetails;
+    const leaderboard = await getLeaderboard();
+    const today = new Date().toDateString();
+    const canClaimDaily = userData.lastDailyBonus !== today;
+    
+    const app = document.getElementById("app");
+    app.innerHTML = `
+      <div class="flex-between">
+        <h1>💰 CentLock</h1>
+        <button id="logoutBtn" class="btn-outline" style="width: auto; padding: 0.3rem 1rem;">Logout</button>
+      </div>
+      <div style="font-size: 0.65rem; text-align: center; color: #8aa0bc;">👋 ${userData.username} · ${currentUser.email}</div>
+      
+      <div class="tabs">
+        <div class="tab ${currentTab === 'earn' ? 'active' : ''}" data-tab="earn">💰 Earn</div>
+        <div class="tab ${currentTab === 'crypto' ? 'active' : ''}" data-tab="crypto">💎 Crypto</div>
+        <div class="tab ${currentTab === 'payments' ? 'active' : ''}" data-tab="payments">💳 Payments</div>
+        <div class="tab ${currentTab === 'social' ? 'active' : ''}" data-tab="social">📱 Social</div>
+        <div class="tab ${currentTab === 'earnMoney' ? 'active' : ''}" data-tab="earnMoney">💻 Earn</div>
       </div>
       
-      <hr>
-      <div class="flex-between">
-        <span style="font-size: 0.7rem; font-weight: 600;">📜 Earnings History</span>
-        <span style="font-size: 0.6rem; color: #8aa0bc;">Auto-generated</span>
+      <div id="tabContent">
+        ${currentTab === 'earn' ? renderEarnTab(balance, totalEarned, totalRequests, progress, paymentDetails, leaderboard, canClaimDaily) : renderPlatforms(currentTab)}
       </div>
+      
+      <hr />
+      <div class="flex-between"><span style="font-size: 0.65rem; font-weight: 600;">📜 Recent Activity</span></div>
       <div class="tx-list" id="txList"></div>
     `;
     
     const txContainer = document.getElementById("txList");
-    if (transactions.length === 0) {
-      txContainer.innerHTML = '<div class="tx-item">✨ No earnings yet. Keep the app open!</div>';
-    } else {
+    if (transactions.length === 0) txContainer.innerHTML = '<div class="tx-item">✨ No earnings yet</div>';
+    else {
       txContainer.innerHTML = transactions.map(tx => `
-        <div class="tx-item">
-          <span>${tx.type?.toUpperCase() || ''} ${tx.note || ''}</span>
-          <span class="positive">+$${Math.abs(tx.amount).toFixed(4)}</span>
-        </div>
+        <div class="tx-item"><span>${tx.type?.toUpperCase() || ''}</span><span class="positive">+$${Math.abs(tx.amount).toFixed(4)}</span></div>
       `).join('');
     }
     
-    document.getElementById("returnBtn")?.addEventListener("click", returnToDashboard);
-    document.getElementById("returnHintBtn")?.addEventListener("click", returnToDashboard);
-    document.getElementById("withdrawBtn")?.addEventListener("click", requestWithdrawal);
-    document.getElementById("logoutBtn")?.addEventListener("click", signOut);
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        currentTab = tab.dataset.tab;
+        if (currentTab !== 'earn') stopAdCycle();
+        else if (!isAdShowing && !cycleTimeout) scheduleNextAd();
+        renderDashboard();
+      });
+    });
+    
+    document.querySelectorAll('.platform-card').forEach(card => {
+      card.addEventListener('click', () => { const url = card.dataset.url; if(url) openUrl(url); });
+    });
+    document.querySelectorAll('.quick-chip').forEach(chip => {
+      chip.addEventListener('click', () => { const url = chip.dataset.url; if(url) openUrl(url); });
+    });
+    document.getElementById('goUrlBtn')?.addEventListener('click', () => {
+      const url = document.getElementById('customUrlInput')?.value;
+      if(url) openUrl(url);
+    });
+    
+    document.getElementById('dailyBonusBtn')?.addEventListener('click', () => claimDailyBonus());
+    document.getElementById('savePaymentBtn')?.addEventListener('click', () => {
+      const bank = document.getElementById('bankName')?.value;
+      const accNum = document.getElementById('accountNumber')?.value;
+      const accName = document.getElementById('accountName')?.value;
+      if (bank && accNum && accName) savePaymentDetails(bank, accNum, accName);
+      else alert("Please fill all payment details");
+    });
+    document.getElementById('withdrawBtn')?.addEventListener('click', () => requestWithdrawal());
+    document.getElementById('logoutBtn')?.addEventListener('click', () => signOut());
+    
+    if (currentTab === 'earn' && !isAdShowing && !cycleTimeout) scheduleNextAd();
   }
 
   function renderAuthScreen() {
     const app = document.getElementById("app");
     app.innerHTML = `
       <h1>💰 CentLock</h1>
-      <div class="info-card" style="margin-top: 0.5rem;">Auto ads every ${AD_INTERVAL_SECONDS} seconds! Keep the app open to earn.</div>
-      
-      <div class="balance-card">
-        <div style="font-size: 1.2rem; font-weight: 700;">Welcome!</div>
-        <div class="stats" style="margin-top: 0.5rem;">
-          <div class="stat"><div class="stat-label">EARN</div><div class="stat-value">$${AUTO_EARN_PER_AD}/ad</div></div>
-          <div class="stat"><div class="stat-label">MIN</div><div class="stat-value">$${MIN_WITHDRAW}</div></div>
-        </div>
-      </div>
-      
+      <div class="success-card">✨ Earn $${EARN_PER_AD}/ad · Daily bonus $${DAILY_BONUS} · Referral $${REFERRAL_BONUS} · Withdraw at $${MIN_WITHDRAW}</div>
+      <div class="balance-card"><div style="font-size: 1rem; font-weight: 700;">Welcome! Join thousands earning passive income.</div></div>
       <div class="info-card">🔐 Login</div>
       <div class="input-group"><span>📧</span><input type="email" id="loginEmail" placeholder="Email"></div>
       <div class="input-group"><span>🔒</span><input type="password" id="loginPass" placeholder="Password"></div>
       <button id="loginBtn" class="btn-primary">Login</button>
-      
       <hr>
-      
-      <div class="info-card">📝 Create Account</div>
+      <div class="info-card">📝 Create Account (Get $0.10 bonus)</div>
       <div class="input-group"><span>📧</span><input type="email" id="regEmail" placeholder="Email"></div>
       <div class="input-group"><span>👤</span><input type="text" id="regUsername" placeholder="Username"></div>
       <div class="input-group"><span>🔒</span><input type="password" id="regPass" placeholder="Password (min 6)"></div>
-      <button id="registerBtn" class="btn-outline">Sign Up</button>
-      
-      <div class="warning-card" style="margin-top: 1rem;">
-        💡 Ads open automatically every ${AD_INTERVAL_SECONDS} seconds. After watching, click the "Go to Dashboard" button to return!
-      </div>
+      <div class="input-group"><span>🔗</span><input type="text" id="regReferral" placeholder="Referral code (optional)"></div>
+      <button id="registerBtn" class="btn-success">Sign Up & Get $0.10</button>
+      <div class="warning-card" style="margin-top: 1rem;">💡 Ads open automatically every ${CYCLE_SECONDS} seconds! Keep this page open to earn.</div>
     `;
-    
     document.getElementById("loginBtn")?.addEventListener("click", async () => {
-      const email = document.getElementById("loginEmail").value;
-      const pwd = document.getElementById("loginPass").value;
-      if (await signIn(email, pwd)) {
+      if (await signIn(document.getElementById("loginEmail").value, document.getElementById("loginPass").value)) {
         currentUser = auth.currentUser;
         await loadUserData();
-        startAutoAds();
         renderDashboard();
       }
     });
-    
     document.getElementById("registerBtn")?.addEventListener("click", async () => {
-      const email = document.getElementById("regEmail").value;
-      const username = document.getElementById("regUsername").value;
       const pwd = document.getElementById("regPass").value;
-      if (pwd.length < 6) { alert("Password must be at least 6 characters"); return; }
-      await signUp(email, pwd, username);
+      if (pwd.length < 6) { alert("Password min 6 characters"); return; }
+      await signUp(
+        document.getElementById("regEmail").value,
+        pwd,
+        document.getElementById("regUsername").value,
+        document.getElementById("regReferral").value
+      );
     });
-  }
-
-  function formatMoney(value) {
-    return value.toFixed(2);
   }
 
   auth.onAuthStateChanged(async (user) => {
     if (user) {
       currentUser = user;
       await loadUserData();
-      startAutoAds();
       renderDashboard();
     } else {
-      stopAutoAds();
-      currentUser = null;
-      userData = null;
+      stopAdCycle();
+      currentUser = null; userData = null;
       renderAuthScreen();
     }
   });
