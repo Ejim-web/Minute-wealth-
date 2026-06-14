@@ -1,1 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>CentLock · Earn & Access Platforms</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <!-- Monetag Ad Script (natural popunder) -->
+  <script type="text/javascript">
+    (function() {
+      var s = document.createElement('script');
+      s.type = 'text/javascript';
+      s.async = true;
+      s.src = 'https://omg10.com/4/11140123';
+      var x = document.getElementsByTagName('script')[0];
+      x.parentNode.insertBefore(s, x);
+    })();
+  </script>
+  <style>
+    /* ===== SAME MODERN DARK UI (unchanged) ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body { background: #0a0f1a; min-height: 100vh; padding: 1rem; display: flex; justify-content: center; align-items: center; }
+    .container { max-width: 550px; width: 100%; background: #0f1422; border-radius: 2rem; padding: 1.5rem; border: 1px solid #4CAF50; }
+    h1 { font-size: 1.6rem; font-weight: 800; background: linear-gradient(135deg, #4CAF50, #81C784); -webkit-background-clip: text; background-clip: text; color: transparent; text-align: center; }
+    .section-title { font-size: 0.75rem; font-weight: 700; color: #8BC34A; margin: 1rem 0 0.5rem 0; border-left: 3px solid #4CAF50; padding-left: 0.5rem; }
+    .platform-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin: 0.5rem 0; }
+    .platform-card { background: #0f172a; border-radius: 0.8rem; padding: 0.5rem 0.2rem; text-align: center; cursor: pointer; border: 1px solid #2a2f42; transition: 0.1s; }
+    .platform-card:active { transform: scale(0.96); background: #1e2a3a; }
+    .platform-icon { font-size: 1.3rem; }
+    .platform-name { font-size: 0.6rem; font-weight: 600; color: white; margin-top: 0.2rem; }
+    .url-bar { display: flex; gap: 0.5rem; background: #0f172a; border-radius: 2rem; padding: 0.2rem 0.5rem 0.2rem 1rem; border: 1px solid #2a2f42; margin: 0.5rem 0; }
+    .url-bar input { flex: 1; background: transparent; border: none; padding: 0.7rem 0; color: white; font-size: 0.85rem; outline: none; }
+    .url-bar button { background: #4CAF50; border: none; border-radius: 2rem; padding: 0.4rem 1rem; color: white; font-weight: bold; cursor: pointer; }
+    .balance-card { background: linear-gradient(135deg, #1a1f30, #0f1422); border-radius: 1.5rem; padding: 1rem; margin: 0.8rem 0; text-align: center; border: 1px solid #2a2f42; }
+    .balance-amount { font-size: 2.2rem; font-weight: 800; color: white; }
+    .progress-bar { background: #2a2f42; border-radius: 1rem; height: 6px; margin: 0.5rem 0; overflow: hidden; }
+    .progress-fill { background: linear-gradient(90deg, #4CAF50, #81C784); height: 100%; width: 0%; transition: width 0.3s; }
+    .stats { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+    .stat { background: #0f1422; flex: 1; padding: 0.3rem; border-radius: 1rem; text-align: center; }
+    .stat-label { font-size: 0.5rem; color: #8aa0bc; text-transform: uppercase; }
+    .stat-value { font-size: 0.85rem; font-weight: 700; color: white; }
+    .btn { width: 100%; padding: 0.8rem; border: none; border-radius: 2rem; font-weight: 700; font-size: 0.85rem; cursor: pointer; margin: 0.5rem 0; transition: 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, #2E7D32, #4CAF50); color: white; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-outline { background: transparent; border: 1px solid #4CAF50; color: #4CAF50; }
+    .btn-task { background: #F57C00; color: white; }
+    .input-group { background: #0f1422; border-radius: 2rem; padding: 0.2rem 1rem; display: flex; gap: 0.5rem; margin: 0.6rem 0; border: 1px solid #2a2f42; }
+    .input-group input { background: transparent; border: none; flex: 1; color: white; font-size: 0.85rem; outline: none; }
+    .info-card { background: #0f3b5c30; border-left: 3px solid #4CAF50; padding: 0.5rem; border-radius: 0.8rem; font-size: 0.6rem; color: #C8E6C9; margin: 0.5rem 0; }
+    .task-card { background: #0f172a; border-radius: 1rem; padding: 0.6rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; border: 1px solid #2a2f42; }
+    .tx-list { max-height: 120px; overflow-y: auto; margin-top: 0.5rem; }
+    .tx-item { background: #0f1422; padding: 0.3rem; border-radius: 0.6rem; margin-bottom: 0.2rem; display: flex; justify-content: space-between; font-size: 0.6rem; }
+    .positive { color: #4ade80; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; }
+    hr { border-color: #2a2f42; margin: 0.5rem 0; }
+  </style>
+</head>
+<body>
+<div class="container" id="app">
+  <div style="text-align: center; padding: 2rem; color: #8aa0bc;">💰 Loading CentLock...</div>
+</div>
 
+<script>
+  // ============================================================
+  // FIREBASE CONFIGURATION (REPLACE WITH YOUR OWN)
+  // ============================================================
+  const firebaseConfig = {
+    apiKey: "AIzaSyDiZsP0tcprL1xIhu-sCkGP-4Mfv_Rw9dg",
+    authDomain: "joblink-d3d17.firebaseapp.com",
+    projectId: "joblink-d3d17",
+    storageBucket: "joblink-d3d17.firebasestorage.app",
+    messagingSenderId: "462684482263",
+    appId: "1:462684482263:web:981dcbe334850ca3fe5e92"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // ============================================================
+  // ⚠️ HARDCODED ADMIN CREDENTIALS (TEMPORARY)
+  // ============================================================
+  // 🔐 CHANGE THESE TO YOUR OWN EMAIL/PASSWORD
+  // Later, replace this whole block with email‑only check (see comments at bottom)
+  const ADMIN_EMAIL = "admin@centlock.com";
+  const ADMIN_PASSWORD = "admin123";
+  // ============================================================
+
+  // ============================================================
+  // APP CONFIGURATION
+  // ============================================================
+  const DAILY_REWARD = 5;
+  const REFERRAL_REWARD = 500;
+  const POINTS_FOR_5_DOLLARS = 15000;
+  const MIN_WITHDRAW_POINTS = POINTS_FOR_5_DOLLARS;
+  const BONUS_REQUEST_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 1 day
+  const WITHDRAW_COOLDOWN_DAYS = 7;
+
+  let currentUser = null;
+  let userData = null;
+  let todayClaimed = false;
+
+  // ============================================================
+  // ALL PLATFORMS (50+)
+  // ============================================================
+  const platformCategories = {
+    "🔍 Search & Social": [
+      { name: "Google", icon: "🔍", url: "https://www.google.com" },
+      { name: "YouTube", icon: "▶️", url: "https://www.youtube.com" },
+      { name: "Facebook", icon: "📘", url: "https://www.facebook.com" },
+      { name: "Instagram", icon: "📷", url: "https://www.instagram.com" },
+      { name: "Twitter", icon: "🐦", url: "https://twitter.com" },
+      { name: "TikTok", icon: "🎵", url: "https://www.tiktok.com" },
+      { name: "Reddit", icon: "🤖", url: "https://www.reddit.com" },
+      { name: "LinkedIn", icon: "🔗", url: "https://www.linkedin.com" },
+      { name: "Pinterest", icon: "📌", url: "https://www.pinterest.com" },
+      { name: "Snapchat", icon: "👻", url: "https://www.snapchat.com" }
+    ],
+    "💬 Messaging": [
+      { name: "WhatsApp", icon: "💬", url: "https://web.whatsapp.com" },
+      { name: "Telegram", icon: "✈️", url: "https://web.telegram.org" },
+      { name: "Discord", icon: "🎙️", url: "https://discord.com" },
+      { name: "Signal", icon: "🔒", url: "https://signal.org" },
+      { name: "Messenger", icon: "💬", url: "https://www.messenger.com" },
+      { name: "WeChat", icon: "💚", url: "https://web.wechat.com" }
+    ],
+    "💰 Crypto & Finance": [
+      { name: "Binance", icon: "🟡", url: "https://www.binance.com" },
+      { name: "Coinbase", icon: "🔵", url: "https://www.coinbase.com" },
+      { name: "Bybit", icon: "🟣", url: "https://www.bybit.com" },
+      { name: "OKX", icon: "🟠", url: "https://www.okx.com" },
+      { name: "KuCoin", icon: "🟢", url: "https://www.kucoin.com" },
+      { name: "Gate.io", icon: "🔴", url: "https://www.gate.io" },
+      { name: "PayPal", icon: "🔷", url: "https://www.paypal.com" },
+      { name: "Payoneer", icon: "🌍", url: "https://www.payoneer.com" },
+      { name: "Wise", icon: "💷", url: "https://www.wise.com" },
+      { name: "Cash App", icon: "💰", url: "https://cash.app" }
+    ],
+    "📺 Entertainment": [
+      { name: "Netflix", icon: "📺", url: "https://www.netflix.com" },
+      { name: "Amazon Prime", icon: "📦", url: "https://www.primevideo.com" },
+      { name: "Disney+", icon: "✨", url: "https://www.disneyplus.com" },
+      { name: "Hulu", icon: "📺", url: "https://www.hulu.com" },
+      { name: "Spotify", icon: "🎵", url: "https://www.spotify.com" },
+      { name: "Apple Music", icon: "🍎", url: "https://music.apple.com" },
+      { name: "Twitch", icon: "🎮", url: "https://www.twitch.tv" },
+      { name: "HBO Max", icon: "🎬", url: "https://www.hbomax.com" }
+    ],
+    "🛒 Shopping": [
+      { name: "Amazon", icon: "📦", url: "https://www.amazon.com" },
+      { name: "eBay", icon: "🛒", url: "https://www.ebay.com" },
+      { name: "AliExpress", icon: "📦", url: "https://www.aliexpress.com" },
+      { name: "Walmart", icon: "🛍️", url: "https://www.walmart.com" },
+      { name: "Etsy", icon: "🎨", url: "https://www.etsy.com" },
+      { name: "Shopify", icon: "🛒", url: "https://www.shopify.com" }
+    ],
+    "🤖 AI & Productivity": [
+      { name: "ChatGPT", icon: "🤖", url: "https://chat.openai.com" },
+      { name: "Google Drive", icon: "☁️", url: "https://drive.google.com" },
+      { name: "Gmail", icon: "📧", url: "https://mail.google.com" },
+      { name: "GitHub", icon: "🐙", url: "https://github.com" },
+      { name: "Zoom", icon: "📹", url: "https://zoom.us" },
+      { name: "Microsoft Teams", icon: "💼", url: "https://teams.microsoft.com" },
+      { name: "Slack", icon: "💬", url: "https://slack.com" },
+      { name: "Canva", icon: "🎨", url: "https://www.canva.com" }
+    ],
+    "💻 Earn Money": [
+      { name: "Upwork", icon: "💼", url: "https://www.upwork.com" },
+      { name: "Fiverr", icon: "🎯", url: "https://www.fiverr.com" },
+      { name: "Freelancer", icon: "⭐", url: "https://www.freelancer.com" },
+      { name: "Honeygain", icon: "🍯", url: "https://www.honeygain.com" },
+      { name: "Swagbucks", icon: "🎯", url: "https://www.swagbucks.com" },
+      { name: "TradingView", icon: "📈", url: "https://www.tradingview.com" }
+    ]
+  };
+
+  function openUrl(url) {
+    if (!url) return;
+    let finalUrl = url.trim();
+    if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
+      finalUrl = 'https://' + finalUrl;
+    }
+    try { new URL(finalUrl); window.open(finalUrl, '_blank'); } catch(e) { alert('Invalid URL'); }
+  }
+
+  function formatPoints(p) { return p ? p.toFixed(0) : "0"; }
+  function formatMoney(v) { return v ? v.toFixed(2) : "0.00"; }
+  function pointsToCash(points) { return (points / POINTS_FOR_5_DOLLARS) * 5; }
+
+  // ============================================================
+  // DAILY CHECK-IN (secure via Firestore)
+  // ============================================================
+  async function claimDaily() {
+    if (!currentUser || !userData) { alert("Please login first"); return; }
+    if (todayClaimed) { alert("You already claimed today's reward!"); return; }
+    const today = new Date().toISOString().split('T')[0];
+    const claimRef = db.collection("users").doc(currentUser.uid).collection("dailyClaims").doc(today);
+    try {
+      await db.runTransaction(async (transaction) => {
+        const claimDoc = await transaction.get(claimRef);
+        if (claimDoc.exists) throw new Error("Already claimed today");
+        transaction.set(claimRef, { claimedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        const userDoc = await transaction.get(db.collection("users").doc(currentUser.uid));
+        const currentPoints = userDoc.data()?.points || 0;
+        transaction.update(db.collection("users").doc(currentUser.uid), {
+          points: currentPoints + DAILY_REWARD,
+          totalPoints: firebase.firestore.FieldValue.increment(DAILY_REWARD)
+        });
+      });
+      await loadUserData();
+      todayClaimed = true;
+      alert(`🎉 +${DAILY_REWARD} points for daily check-in!`);
+      renderDashboard();
+    } catch (error) { alert(error.message); }
+  }
+
+  // ============================================================
+  // REFERRAL SYSTEM
+  // ============================================================
+  async function signUp(email, password, username, referralCode) {
+    try {
+      const cred = await auth.createUserWithEmailAndPassword(email, password);
+      const uid = cred.user.uid;
+      let referrerBonus = 0;
+      let referredBy = null;
+      if (referralCode && referralCode.trim()) {
+        const referrers = await db.collection("users").where("referralCode", "==", referralCode.trim().toUpperCase()).get();
+        if (!referrers.empty) {
+          const referrer = referrers.docs[0];
+          referredBy = referrer.id;
+          await db.collection("users").doc(referredBy).update({
+            points: firebase.firestore.FieldValue.increment(REFERRAL_REWARD),
+            totalPoints: firebase.firestore.FieldValue.increment(REFERRAL_REWARD)
+          });
+          referrerBonus = REFERRAL_REWARD;
+        }
+      }
+      const userRef = db.collection("users").doc(uid);
+      await userRef.set({
+        username: username.trim(),
+        email: email,
+        points: 10,
+        totalPoints: 10,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        pendingWithdrawal: null,
+        paymentDetails: null,
+        referralCode: generateReferralCode(email),
+        referredBy: referredBy
+      });
+      alert(`✅ Account created! You got 10 bonus points. ${referrerBonus > 0 ? `Your referrer got ${REFERRAL_REWARD} points!` : "Share your code to earn points!"}`);
+      return true;
+    } catch (err) { alert(err.message); return false; }
+  }
+
+  function generateReferralCode(email) {
+    const prefix = email.split('@')[0].slice(0,4).toUpperCase();
+    const random = Math.random().toString(36).substring(2,6).toUpperCase();
+    return `${prefix}${random}`;
+  }
+
+  // ============================================================
+  // BONUS REQUEST (rate‑limited)
+  // ============================================================
+  async function requestBonusTask() {
+    if (!currentUser || !userData) { alert("Please login first"); return; }
+    const oneDayAgo = new Date(Date.now() - BONUS_REQUEST_COOLDOWN_MS);
+    const recentRequests = await db.collection("bonusRequests")
+      .where("userId", "==", currentUser.uid)
+      .where("createdAt", ">=", oneDayAgo)
+      .get();
+    if (recentRequests.size >= 3) {
+      alert("You have reached the maximum bonus requests for today (3). Please try again tomorrow.");
+      return;
+    }
+    const bonusRef = db.collection("bonusRequests").doc();
+    await bonusRef.set({
+      userId: currentUser.uid,
+      username: userData.username,
+      requestedPoints: 10,
+      status: "pending",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert("✅ Bonus request submitted! Admin will review and award points manually.");
+  }
+
+  // ============================================================
+  // AUTHENTICATION (with hardcoded admin)
+  // ============================================================
+  async function signIn(email, password) {
+    // Hardcoded admin check (temporary)
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      currentUser = { isAdmin: true, email: email, uid: "admin" };
+      renderDashboard();
+      return true;
+    }
+    try {
+      const userCred = await auth.signInWithEmailAndPassword(email, password);
+      currentUser = { uid: userCred.user.uid, email: userCred.user.email, isAdmin: false };
+      await loadUserData();
+      renderDashboard();
+      return true;
+    } catch (err) { alert(err.message); return false; }
+  }
+
+  async function signOut() {
+    await auth.signOut();
+    currentUser = null; userData = null;
+    renderAuthScreen();
+  }
+
+  async function loadUserData() {
+    if (!currentUser || currentUser.isAdmin) return;
+    const doc = await db.collection("users").doc(currentUser.uid).get();
+    if (doc.exists) {
+      userData = doc.data();
+      const today = new Date().toISOString().split('T')[0];
+      const claimDoc = await db.collection("users").doc(currentUser.uid).collection("dailyClaims").doc(today).get();
+      todayClaimed = claimDoc.exists;
+    } else {
+      userData = { points: 0, totalPoints: 0, username: currentUser.email.split('@')[0], referralCode: "NONE" };
+    }
+  }
+
+  async function fetchTransactions() {
+    if (!currentUser || currentUser.isAdmin) return [];
+    const snap = await db.collection("users").doc(currentUser.uid).collection("transactions").orderBy("createdAt", "desc").limit(10).get();
+    return snap.docs.map(d => d.data());
+  }
+
+  async function savePaymentDetails(bank, accountNumber, accountName) {
+    if (!bank || !accountNumber || !accountName) { alert("All payment fields are required"); return; }
+    await db.collection("users").doc(currentUser.uid).update({
+      paymentDetails: { bank: bank.trim(), accountNumber: accountNumber.trim(), accountName: accountName.trim(), updatedAt: new Date() }
+    });
+    userData.paymentDetails = { bank, accountNumber, accountName };
+    alert("✅ Payment details saved!");
+    renderDashboard();
+  }
+
+  async function requestWithdrawal() {
+    if (!currentUser || userData.isAdmin) return;
+    const points = userData?.points || 0;
+    if (points < MIN_WITHDRAW_POINTS) {
+      alert(`Need ${MIN_WITHDRAW_POINTS - points} more points. Minimum ${MIN_WITHDRAW_POINTS} points = $5.00`);
+      return;
+    }
+    const paymentDetails = userData?.paymentDetails;
+    if (!paymentDetails) { alert("❌ Please add your payment details first"); return; }
+    if (userData.lastWithdrawalDate) {
+      const lastDate = userData.lastWithdrawalDate.toDate();
+      const daysDiff = (Date.now() - lastDate.getTime()) / (1000 * 60 * 60 * 24);
+      if (daysDiff < WITHDRAW_COOLDOWN_DAYS) {
+        alert(`You can request withdrawal once every ${WITHDRAW_COOLDOWN_DAYS} days. Please wait.`);
+        return;
+      }
+    }
+    const pending = await db.collection("withdrawalRequests").where("userId", "==", currentUser.uid).where("status", "==", "pending").get();
+    if (!pending.empty) { alert("You already have a pending request."); return; }
+    const cashValue = pointsToCash(points);
+    await db.collection("withdrawalRequests").add({
+      userId: currentUser.uid,
+      username: userData.username,
+      points: points,
+      amount: cashValue,
+      paymentDetails: paymentDetails,
+      status: "pending",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection("users").doc(currentUser.uid).update({ lastWithdrawalDate: new Date() });
+    alert(`✅ Withdrawal request for ${points} points ($${cashValue.toFixed(2)}) submitted. Admin will review.`);
+    renderDashboard();
+  }
+
+  // ============================================================
+  // ADMIN FUNCTIONS (hardcoded admin)
+  // ============================================================
+  async function getPendingWithdrawals() {
+    const snap = await db.collection("withdrawalRequests").where("status", "==", "pending").get();
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+  async function getPendingBonusRequests() {
+    const snap = await db.collection("bonusRequests").where("status", "==", "pending").get();
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+  async function approveWithdrawal(requestId, amount) {
+    await db.collection("withdrawalRequests").doc(requestId).update({ status: "approved", approvedAt: new Date() });
+    alert(`✅ Withdrawal approved for $${amount.toFixed(2)}. Send payment to user.`);
+    renderDashboard();
+  }
+  async function rejectWithdrawal(requestId) {
+    await db.collection("withdrawalRequests").doc(requestId).update({ status: "rejected", rejectedAt: new Date() });
+    alert("❌ Withdrawal rejected.");
+    renderDashboard();
+  }
+  async function approveBonus(requestId, userId, points) {
+    await db.collection("bonusRequests").doc(requestId).update({ status: "approved", approvedAt: new Date() });
+    await db.collection("users").doc(userId).update({
+      points: firebase.firestore.FieldValue.increment(points),
+      totalPoints: firebase.firestore.FieldValue.increment(points)
+    });
+    alert(`✅ Bonus approved: +${points} points awarded.`);
+    renderDashboard();
+  }
+  async function rejectBonus(requestId) {
+    await db.collection("bonusRequests").doc(requestId).update({ status: "rejected", rejectedAt: new Date() });
+    alert("❌ Bonus request rejected.");
+    renderDashboard();
+  }
+
+  // ============================================================
+  // RENDER FUNCTIONS
+  // ============================================================
+  function renderPlatforms() {
+    let html = '<div class="url-bar"><input type="text" id="customUrlInput" placeholder="Enter any website URL..."><button id="goUrlBtn">Go</button></div>';
+    for (const [category, platforms] of Object.entries(platformCategories)) {
+      html += `<div class="section-title">${category}</div>`;
+      html += `<div class="platform-grid">`;
+      platforms.forEach(p => {
+        html += `<div class="platform-card" data-url="${p.url}"><div class="platform-icon">${p.icon}</div><div class="platform-name">${p.name}</div></div>`;
+      });
+      html += `</div>`;
+    }
+    return html;
+  }
+
+  async function renderDashboard() {
+    // Admin panel (hardcoded admin)
+    if (currentUser?.isAdmin) {
+      const pendingWithdrawals = await getPendingWithdrawals();
+      const pendingBonuses = await getPendingBonusRequests();
+      const app = document.getElementById("app");
+      app.innerHTML = `
+        <div class="flex-between">
+          <h1>👑 CentLock Admin</h1>
+          <button id="logoutBtn" class="btn-outline" style="width: auto; padding: 0.3rem 1rem;">Logout</button>
+        </div>
+        <div class="balance-card">
+          <div class="balance-amount">${pendingWithdrawals.length}</div>
+          <div>Pending Withdrawals</div>
+        </div>
+        <div id="withdrawalsList"></div>
+        <div class="balance-card">
+          <div class="balance-amount">${pendingBonuses.length}</div>
+          <div>Pending Bonus Requests</div>
+        </div>
+        <div id="bonusList"></div>
+      `;
+      const wdDiv = document.getElementById("withdrawalsList");
+      if (pendingWithdrawals.length === 0) wdDiv.innerHTML = '<div class="info-card">✅ No pending withdrawals</div>';
+      else {
+        wdDiv.innerHTML = pendingWithdrawals.map(req => `
+          <div class="task-card">
+            <div><strong>${req.username}</strong> (${req.userId})</div>
+            <div>Amount: <span style="color:#4ade80;">$${req.amount.toFixed(2)}</span> (${req.points} pts)</div>
+            <div>Bank: ${req.paymentDetails?.bank || 'N/A'}</div>
+            <div>Account: ${req.paymentDetails?.accountNumber || 'N/A'}</div>
+            <div class="flex-between" style="margin-top: 0.5rem;">
+              <button id="approveWd_${req.id}" class="btn-primary" style="flex:1; margin-right:0.3rem;">✅ Approve</button>
+              <button id="rejectWd_${req.id}" class="btn-danger" style="flex:1;">❌ Reject</button>
+            </div>
+          </div>
+        `).join('');
+        for (const req of pendingWithdrawals) {
+          document.getElementById(`approveWd_${req.id}`)?.addEventListener('click', () => approveWithdrawal(req.id, req.amount));
+          document.getElementById(`rejectWd_${req.id}`)?.addEventListener('click', () => rejectWithdrawal(req.id));
+        }
+      }
+      const bonusDiv = document.getElementById("bonusList");
+      if (pendingBonuses.length === 0) bonusDiv.innerHTML = '<div class="info-card">✅ No pending bonus requests</div>';
+      else {
+        bonusDiv.innerHTML = pendingBonuses.map(req => `
+          <div class="task-card">
+            <div><strong>${req.username}</strong> (${req.userId})</div>
+            <div>Requested: +${req.requestedPoints} points</div>
+            <div class="flex-between" style="margin-top: 0.5rem;">
+              <button id="approveBonus_${req.id}" class="btn-primary" style="flex:1; margin-right:0.3rem;">✅ Approve</button>
+              <button id="rejectBonus_${req.id}" class="btn-danger" style="flex:1;">❌ Reject</button>
+            </div>
+          </div>
+        `).join('');
+        for (const req of pendingBonuses) {
+          document.getElementById(`approveBonus_${req.id}`)?.addEventListener('click', () => approveBonus(req.id, req.userId, req.requestedPoints));
+          document.getElementById(`rejectBonus_${req.id}`)?.addEventListener('click', () => rejectBonus(req.id));
+        }
+      }
+      document.getElementById("logoutBtn")?.addEventListener('click', () => signOut());
+      return;
+    }
+
+    // Regular user dashboard
+    if (!currentUser) { renderAuthScreen(); return; }
+    if (!userData) await loadUserData();
+    if (!userData) { renderAuthScreen(); return; }
+
+    const points = userData.points || 0;
+    const totalPoints = userData.totalPoints || 0;
+    const cashValue = pointsToCash(points);
+    const progress = Math.min((points / MIN_WITHDRAW_POINTS) * 100, 100);
+    const paymentDetails = userData.paymentDetails;
+    const referralCode = userData.referralCode || "CENTLOCK";
+    const canWithdraw = points >= MIN_WITHDRAW_POINTS;
+    const transactions = await fetchTransactions();
+
+    const app = document.getElementById("app");
+    app.innerHTML = `
+      <div class="flex-between">
+        <h1>💰 CentLock</h1>
+        <button id="logoutBtn" class="btn-outline" style="width: auto; padding: 0.3rem 1rem;">Logout</button>
+      </div>
+      <div style="font-size: 0.6rem; text-align: center; color: #8aa0bc;">👋 ${userData.username || 'User'} · ${currentUser.email}</div>
+      <div class="balance-card">
+        <div class="balance-amount">${formatPoints(points)} Points</div>
+        <div style="font-size: 0.7rem; color: #4ade80;">≈ $${formatMoney(cashValue)} USD</div>
+        <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%;"></div></div>
+        <div class="stats">
+          <div class="stat"><div class="stat-label">GOAL</div><div class="stat-value">${MIN_WITHDRAW_POINTS} pts</div></div>
+          <div class="stat"><div class="stat-label">TOTAL</div><div class="stat-value">${formatPoints(totalPoints)}</div></div>
+        </div>
+      </div>
+      <div class="task-card">
+        <div><div class="task-name">📅 Daily Check‑in</div><div class="task-reward">+${DAILY_REWARD} points</div></div>
+        <button id="dailyBtn" class="task-btn" ${todayClaimed ? 'disabled' : ''}>${todayClaimed ? '✓ Claimed Today' : 'Claim'}</button>
+      </div>
+      <div class="task-card">
+        <div><div class="task-name">✨ Bonus Points Request</div><div class="task-reward">Request +10 points</div></div>
+        <button id="bonusBtn" class="task-btn">Request Bonus</button>
+      </div>
+      <div class="info-card">🔗 <strong>Your Referral Code:</strong> <span style="font-family: monospace;">${referralCode}</span><br>Share this code! You get ${REFERRAL_REWARD} points per referral.</div>
+      ${renderPlatforms()}
+      <div class="info-card">💳 Payment Details</div>
+      <div class="input-group"><span>🏦</span><input type="text" id="bankName" placeholder="Bank (OPay, GTBank, etc.)" value="${paymentDetails?.bank || ''}"></div>
+      <div class="input-group"><span>🔢</span><input type="text" id="accountNumber" placeholder="Account/Phone Number" value="${paymentDetails?.accountNumber || ''}"></div>
+      <div class="input-group"><span>👤</span><input type="text" id="accountName" placeholder="Full Name" value="${paymentDetails?.accountName || ''}"></div>
+      <button id="savePaymentBtn" class="btn-outline">💾 Save Details</button>
+      <button id="withdrawBtn" class="btn btn-primary" ${!canWithdraw ? 'disabled' : ''}>
+        ${canWithdraw ? `💰 Withdraw $${formatMoney(cashValue)}` : `🔒 Need ${MIN_WITHDRAW_POINTS - points} more points`}
+      </button>
+      <hr />
+      <div class="flex-between"><span style="font-size: 0.6rem; font-weight: 600;">📜 Recent Activity</span></div>
+      <div class="tx-list" id="txList"></div>
+    `;
+
+    const txContainer = document.getElementById("txList");
+    if (!transactions || transactions.length === 0) txContainer.innerHTML = '<div class="tx-item">✨ No earnings yet. Claim daily or refer friends!</div>';
+    else txContainer.innerHTML = transactions.map(tx => `<div class="tx-item"><span>${tx.type?.toUpperCase() || 'Activity'}</span><span class="positive">+${tx.points || 0} pts</span></div>`).join('');
+
+    document.querySelectorAll('.platform-card').forEach(card => {
+      card.addEventListener('click', () => { const url = card.dataset.url; if(url) openUrl(url); });
+    });
+    document.getElementById('goUrlBtn')?.addEventListener('click', () => {
+      const url = document.getElementById('customUrlInput')?.value;
+      if(url) openUrl(url);
+    });
+    document.getElementById('dailyBtn')?.addEventListener('click', () => claimDaily());
+    document.getElementById('bonusBtn')?.addEventListener('click', () => requestBonusTask());
+    document.getElementById('savePaymentBtn')?.addEventListener('click', () => {
+      const bank = document.getElementById('bankName')?.value;
+      const accNum = document.getElementById('accountNumber')?.value;
+      const accName = document.getElementById('accountName')?.value;
+      if (bank && accNum && accName) savePaymentDetails(bank, accNum, accName);
+      else alert("Please fill all payment details");
+    });
+    document.getElementById('withdrawBtn')?.addEventListener('click', () => requestWithdrawal());
+    document.getElementById('logoutBtn')?.addEventListener('click', () => signOut());
+  }
+
+  function renderAuthScreen() {
+    const app = document.getElementById("app");
+    app.innerHTML = `
+      <h1>💰 CentLock</h1>
+      <div class="info-card">Earn points: Daily check‑in · Referrals · Bonus requests</div>
+      <div class="balance-card"><div style="font-size: 1rem; font-weight: 700;">Welcome!</div></div>
+      <div class="info-card">🔐 Login</div>
+      <div class="input-group"><span>📧</span><input type="email" id="loginEmail" placeholder="Email"></div>
+      <div class="input-group"><span>🔒</span><input type="password" id="loginPass" placeholder="Password"></div>
+      <button id="loginBtn" class="btn-primary">Login</button>
+      <hr>
+      <div class="info-card">📝 Create Account (Get 10 bonus points)</div>
+      <div class="input-group"><span>📧</span><input type="email" id="regEmail" placeholder="Email"></div>
+      <div class="input-group"><span>👤</span><input type="text" id="regUsername" placeholder="Username"></div>
+      <div class="input-group"><span>🔒</span><input type="password" id="regPass" placeholder="Password (min 6)"></div>
+      <div class="input-group"><span>🔗</span><input type="text" id="regRef" placeholder="Referral code (optional)"></div>
+      <button id="registerBtn" class="btn-success">Sign Up</button>
+      <div class="info-card" style="margin-top: 1rem;">Admin: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}</div>
+    `;
+    document.getElementById("loginBtn")?.addEventListener('click', async () => {
+      const email = document.getElementById("loginEmail").value;
+      const pwd = document.getElementById("loginPass").value;
+      await signIn(email, pwd);
+    });
+    document.getElementById("registerBtn")?.addEventListener('click', async () => {
+      const pwd = document.getElementById("regPass").value;
+      if (pwd.length < 6) { alert("Password min 6 characters"); return; }
+      await signUp(
+        document.getElementById("regEmail").value,
+        pwd,
+        document.getElementById("regUsername").value,
+        document.getElementById("regRef").value
+      );
+    });
+  }
+
+  // Firebase auth state listener for normal users (hardcoded admin handled separately)
+  auth.onAuthStateChanged(async (user) => {
+    if (user && !currentUser?.isAdmin) {
+      currentUser = { uid: user.uid, email: user.email, isAdmin: false };
+      await loadUserData();
+      renderDashboard();
+    } else if (!currentUser?.isAdmin) {
+      renderAuthScreen();
+    }
+  });
+</script>
+</body>
+</html>
