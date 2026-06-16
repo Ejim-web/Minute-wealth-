@@ -1,1 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>CentLock · Learn, Earn & Grow</title>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Monetag Ad Script -->
+  <script type="text/javascript">
+    (function() {
+      var s = document.createElement('script');
+      s.type = 'text/javascript';
+      s.async = true;
+      s.src = 'https://omg10.com/4/11140123';
+      var x = document.getElementsByTagName('script')[0];
+      x.parentNode.insertBefore(s, x);
+    })();
+  </script>
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); min-height: 100vh; padding: 1rem; }
+    .container { max-width: 600px; width: 100%; margin: 0 auto; background: rgba(15, 20, 34, 0.95); backdrop-filter: blur(10px); border-radius: 2rem; padding: 1.5rem; border: 1px solid rgba(76, 175, 80, 0.3); box-shadow: 0 25px 45px -12px rgba(0,0,0,0.5); }
+    
+    .nav-tabs { display: flex; gap: 0.2rem; margin-bottom: 1.5rem; background: rgba(26, 31, 48, 0.8); padding: 0.5rem; border-radius: 3rem; flex-wrap: wrap; }
+    .tab-btn { flex: 1; padding: 0.5rem 0.2rem; border: none; background: transparent; color: #8aa0bc; font-weight: 600; border-radius: 2rem; cursor: pointer; transition: all 0.3s ease; font-size: 0.65rem; }
+    .tab-btn.active { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; box-shadow: 0 4px 12px rgba(76,175,80,0.3); }
+    
+    h1 { text-align: center; background: linear-gradient(135deg, #4CAF50, #8BC34A); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 0.25rem; font-size: 1.6rem; }
+    .balance { background: linear-gradient(135deg, #1a1f30, #0f1422); border-radius: 1.5rem; padding: 1rem; text-align: center; margin-bottom: 1rem; border: 1px solid rgba(76,175,80,0.2); }
+    .balance h2 { color: #4ade80; font-size: 1.8rem; }
+    .btn { width: 100%; padding: 0.8rem; border: none; border-radius: 2rem; font-weight: 600; margin: 0.5rem 0; cursor: pointer; transition: all 0.3s ease; }
+    .btn-daily { background: linear-gradient(135deg, #F57C00, #FF9800); color: white; }
+    .btn-withdraw { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; }
+    .btn-outline { background: transparent; border: 1.5px solid #4CAF50; color: #4CAF50; }
+    .btn-ad { background: linear-gradient(135deg, #1e293b, #0f172a); color: #4CAF50; border: 1px solid #4CAF50; }
+    input, textarea, select { width: 100%; padding: 0.8rem; margin: 0.5rem 0; border-radius: 2rem; border: 1px solid #2a2f42; background: #0f1422; color: white; outline: none; }
+    input:focus { border-color: #4CAF50; }
+    .info { color: #8aa0bc; font-size: 0.7rem; text-align: center; margin: 0.5rem 0; }
+    .flex { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .green { color: #4ade80; font-weight: 600; }
+    .section-title { font-size: 0.75rem; font-weight: 700; color: #8BC34A; margin: 1rem 0 0.5rem; border-left: 3px solid #4CAF50; padding-left: 0.5rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+    .card { background: linear-gradient(135deg, #0f172a, #0a0f1a); border-radius: 0.8rem; padding: 0.7rem; text-align: center; cursor: pointer; border: 1px solid #2a2f42; transition: all 0.2s ease; }
+    .card:hover { transform: translateY(-3px); border-color: #4CAF50; }
+    .opportunity-card { background: linear-gradient(135deg, #1a1f30, #0f1422); border-radius: 1rem; padding: 0.8rem; margin: 0.5rem 0; border-left: 3px solid #4CAF50; }
+    .toast { position: fixed; bottom: 20px; left: 20px; background: linear-gradient(135deg, #1e293b, #0f172a); color: #4ade80; padding: 12px 20px; border-radius: 2rem; z-index: 9999; font-size: 0.8rem; border-left: 3px solid #4CAF50; animation: slideInLeft 0.3s ease; }
+    @keyframes slideInLeft { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
+    .progress-bar { height: 6px; background: #2a2f42; border-radius: 3px; overflow: hidden; margin: 0.5rem 0; }
+    .progress-fill { height: 100%; background: #4CAF50; width: 0%; transition: width 0.3s; }
+    .expense-item, .note-item { display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid #2a2f42; }
+    .lesson-card { background: linear-gradient(135deg, #1a1f30, #0f1422); border-radius: 1rem; padding: 0.8rem; margin: 0.5rem 0; cursor: pointer; transition: all 0.2s ease; }
+    .lesson-card:hover { transform: translateX(5px); border-left: 3px solid #4CAF50; }
+    .job-card { background: linear-gradient(135deg, #1a1f30, #0f1422); border-radius: 1rem; padding: 0.8rem; margin: 0.5rem 0; border-left: 3px solid #F57C00; }
+    .coupon-card { background: linear-gradient(135deg, #1a1f30, #0f1422); border-radius: 1rem; padding: 0.8rem; margin: 0.5rem 0; text-align: center; border: 1px dashed #4CAF50; }
+    .weather-card { background: linear-gradient(135deg, #1e3a5f, #0f172a); border-radius: 1rem; padding: 1rem; text-align: center; }
+    .chat-message { background: #1a1f30; border-radius: 1rem; padding: 0.5rem; margin: 0.3rem 0; }
+    .user-message { background: #4CAF50; color: white; text-align: right; }
+    .ai-message { background: #0f172a; border-left: 3px solid #4CAF50; }
+  </style>
+</head>
+<body>
+<div class="container" id="app">Loading CentLock...</div>
 
+<script>
+  // Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDiZsP0tcprL1xIhu-sCkGP-4Mfv_Rw9dg",
+    authDomain: "joblink-d3d17.firebaseapp.com",
+    projectId: "joblink-d3d17",
+    storageBucket: "joblink-d3d17.firebasestorage.app",
+    messagingSenderId: "462684482263",
+    appId: "1:462684482263:web:981dcbe334850ca3fe5e92"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // Configuration
+  const DAILY_REWARD = 5;
+  const POINTS_FOR_5_DOLLARS = 15000;
+  const AD_INTERVAL_HOURS = 2; // Reduced to 2 hours for faster earning
+  const AD_REWARD_POINTS = 10; // Increased to 10 points per ad
+
+  let currentUser = null;
+  let userData = null;
+  let isAdmin = false;
+  let currentTab = "home";
+  const ADMIN_EMAIL = "ejimchinedu24@gmail.com";
+
+  // ============================================================
+  // DYNAMIC DATA
+  // ============================================================
+  
+  // Learning Lessons
+  const lessons = [
+    { id: 1, title: "Introduction to Coding", category: "Coding", content: "Coding is creating instructions for computers. Start with HTML, CSS, then JavaScript!", reward: 20, completed: false },
+    { id: 2, title: "What is Cryptocurrency?", category: "Crypto", content: "Cryptocurrency is digital money secured by blockchain technology. Bitcoin was first!", reward: 20, completed: false },
+    { id: 3, title: "Freelancing 101", category: "Freelancing", content: "Offer your skills on Upwork, Fiverr. Start small, build reviews, increase rates!", reward: 20, completed: false },
+    { id: 4, title: "How to Use ChatGPT", category: "AI", content: "ChatGPT can write emails, code, brainstorm. Be specific with prompts for best results!", reward: 20, completed: false },
+    { id: 5, title: "English for Business", category: "English", content: "Use professional phrases like 'I look forward to' instead of 'I want'", reward: 20, completed: false }
+  ];
+
+  // Jobs
+  const jobs = [
+    { title: "Remote Customer Support", company: "SupportHub", location: "Remote", pay: "$15/hr", url: "https://www.upwork.com", type: "Remote" },
+    { title: "Frontend Developer", company: "TechCorp", location: "Lagos", pay: "₦250k/month", url: "https://www.linkedin.com/jobs", type: "Full-time" },
+    { title: "Content Writer", company: "ContentKing", location: "Remote", pay: "$20/article", url: "https://www.fiverr.com", type: "Freelance" },
+    { title: "Virtual Assistant", company: "AdminPro", location: "Remote", pay: "$10/hr", url: "https://www.remoteok.com", type: "Remote" }
+  ];
+
+  // Coupons & Discounts
+  const coupons = [
+    { code: "MTN2024", discount: "1GB for ₦200", network: "MTN", valid: "Dec 31, 2024" },
+    { code: "GLO DATA", discount: "2GB for ₦500", network: "Glo", valid: "Dec 31, 2024" },
+    { code: "JUMIA10", discount: "10% off sitewide", platform: "Jumia", valid: "Dec 31, 2024" }
+  ];
+
+  // Weather data (simulated)
+  const weatherData = { temp: "28°C", condition: "Sunny", humidity: "65%", wind: "12 km/h" };
+
+  // AI Responses
+  function getAIResponse(question) {
+    const q = question.toLowerCase();
+    if (q.includes("coding") || q.includes("program")) return "Coding is creating instructions for computers. Start with free resources like freeCodeCamp! 💻";
+    if (q.includes("crypto") || q.includes("bitcoin")) return "Cryptocurrency is digital money. Always DYOR (Do Your Own Research) before investing! 📈";
+    if (q.includes("freelance") || q.includes("upwork")) return "Start with small gigs, build your portfolio, then increase rates gradually! 🚀";
+    if (q.includes("ai") || q.includes("chatgpt")) return "AI helps automate tasks. Learn prompt engineering to get better results! 🤖";
+    return "Great question! I'm here to help with coding, crypto, freelancing, AI, and business. Ask me anything! 💡";
+  }
+
+  // ============================================================
+  // USER DATA FUNCTIONS
+  // ============================================================
+  async function loadUserData() {
+    if (!currentUser) return;
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+    if (doc.exists) {
+      userData = doc.data();
+      const today = new Date().toISOString().split('T')[0];
+      const claimDoc = await db.collection('users').doc(currentUser.uid).collection('dailyClaims').doc(today).get();
+      userData.hasClaimedDaily = claimDoc.exists;
+    }
+  }
+
+  async function addPoints(amount, reason) {
+    await db.collection('users').doc(currentUser.uid).update({
+      points: firebase.firestore.FieldValue.increment(amount),
+      totalPoints: firebase.firestore.FieldValue.increment(amount)
+    });
+    await addTransaction(currentUser.uid, reason, amount);
+    await loadUserData();
+    showToast(`🎉 +${amount} points! ${reason}`, 2000);
+    renderApp();
+  }
+
+  async function addTransaction(userId, type, points) {
+    await db.collection('users').doc(userId).collection('transactions').add({ type, points, date: new Date() });
+  }
+
+  async function completeLesson(lessonId, reward) {
+    const lessonKey = `lesson_${lessonId}`;
+    if (userData?.[lessonKey]) {
+      showToast("You already completed this lesson!", 2000);
+      return;
+    }
+    await db.collection('users').doc(currentUser.uid).update({ [lessonKey]: true });
+    await addPoints(reward, `Completed lesson ${lessonId}`);
+    renderApp();
+  }
+
+  async function saveNote(content) {
+    if (!content) return;
+    await db.collection('users').doc(currentUser.uid).collection('notes').add({ content, date: new Date() });
+    showToast("📝 Note saved!", 1500);
+    renderApp();
+  }
+
+  async function getNotes() {
+    if (!currentUser) return [];
+    const snap = await db.collection('users').doc(currentUser.uid).collection('notes').orderBy('date', 'desc').limit(10).get();
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  async function addExpense(name, amount, type) {
+    if (!name || !amount) return;
+    await db.collection('users').doc(currentUser.uid).collection('expenses').add({ name, amount: parseFloat(amount), type, date: new Date() });
+    showToast(`💰 ${type}: ${name} - ₦${amount}`, 1500);
+    renderApp();
+  }
+
+  async function getExpenses() {
+    if (!currentUser) return [];
+    const snap = await db.collection('users').doc(currentUser.uid).collection('expenses').orderBy('date', 'desc').limit(20).get();
+    return snap.docs.map(d => d.data());
+  }
+
+  // ============================================================
+  // EARNING FUNCTIONS
+  // ============================================================
+  async function canShowAd() {
+    if (!currentUser) return false;
+    const lastAd = userData?.lastAdTime;
+    if (!lastAd) return true;
+    const hoursSince = (Date.now() - lastAd.toDate().getTime()) / (1000 * 60 * 60);
+    return hoursSince >= AD_INTERVAL_HOURS;
+  }
+
+  async function watchAd() {
+    if (!currentUser) return alert("Login first");
+    if (!(await canShowAd())) return alert(`Wait ${AD_INTERVAL_HOURS} hours before another ad`);
+    
+    window.open('https://omg10.com/4/11140123', '_blank');
+    showToast("📺 Ad opened! +10 points in 5 seconds...", 3000);
+    
+    setTimeout(async () => {
+      await db.collection('users').doc(currentUser.uid).update({
+        lastAdTime: new Date(),
+        points: firebase.firestore.FieldValue.increment(AD_REWARD_POINTS),
+        totalPoints: firebase.firestore.FieldValue.increment(AD_REWARD_POINTS),
+        adsWatched: firebase.firestore.FieldValue.increment(1)
+      });
+      await loadUserData();
+      renderApp();
+      showToast(`✅ +${AD_REWARD_POINTS} points!`, 2000);
+    }, 5000);
+  }
+
+  async function claimDaily() {
+    if (!currentUser) return;
+    const today = new Date().toISOString().split('T')[0];
+    const claimRef = db.collection('users').doc(currentUser.uid).collection('dailyClaims').doc(today);
+    if ((await claimRef.get()).exists) return alert("Already claimed today!");
+    
+    let streak = (userData?.streak || 0) + 1;
+    let reward = DAILY_REWARD + Math.floor(streak / 7) * 5;
+    if (streak >= 30) reward = 100;
+    
+    await claimRef.set({ date: today });
+    await db.collection('users').doc(currentUser.uid).update({
+      points: firebase.firestore.FieldValue.increment(reward),
+      totalPoints: firebase.firestore.FieldValue.increment(reward),
+      streak: streak
+    });
+    await loadUserData();
+    showToast(`🎉 +${reward} points! ${streak} day streak!`, 3000);
+    renderApp();
+  }
+
+  // ============================================================
+  // AUTHENTICATION
+  // ============================================================
+  async function signUp(email, password, username) {
+    try {
+      const cred = await auth.createUserWithEmailAndPassword(email, password);
+      await db.collection('users').doc(cred.user.uid).set({
+        username, email, points: 50, totalPoints: 50, streak: 0, adsWatched: 0,
+        lastAdTime: null, createdAt: new Date()
+      });
+      alert("Account created! +50 bonus points");
+      return true;
+    } catch(err) { alert(err.message); return false; }
+  }
+
+  async function signIn(email, password) {
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+      currentUser = auth.currentUser;
+      isAdmin = (currentUser.email === ADMIN_EMAIL);
+      await loadUserData();
+      renderApp();
+      return true;
+    } catch(err) { alert(err.message); return false; }
+  }
+
+  async function signOut() {
+    await auth.signOut();
+    currentUser = null;
+    renderApp();
+  }
+
+  // ============================================================
+  // RENDER FUNCTIONS
+  // ============================================================
+  function showToast(message, duration = 3000) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerText = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), duration);
+  }
+
+  function openUrl(url) { window.open(url, '_blank'); }
+
+  async function renderHomeTab() {
+    const points = userData?.points || 0;
+    const cashValue = (points / POINTS_FOR_5_DOLLARS) * 5;
+    const todayTasks = userData?.dailyTasksCompleted || 0;
+    
+    return `
+      <div class="balance">
+        <h2>${points} pts</h2>
+        <div>≈ $${cashValue.toFixed(2)} USD</div>
+        <div class="flex"><span>🔥 Streak: ${userData?.streak || 0}</span><span>📺 Ads: ${userData?.adsWatched || 0}</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100, (points/POINTS_FOR_5_DOLLARS)*100)}%"></div></div>
+      </div>
+      
+      <div class="grid-2">
+        <div class="card" id="quickAdBtn">🎥 Watch Ad (+10)</div>
+        <div class="card" id="quickDailyBtn">📅 Daily Claim</div>
+      </div>
+      
+      <div class="section-title">🎯 Today's Challenge</div>
+      <div class="opportunity-card">
+        <div class="flex"><span>Complete 3 activities today</span><span class="green">${todayTasks}/3</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${(todayTasks/3)*100}%"></div></div>
+        ${todayTasks >= 3 ? '<span class="green">✓ Challenge complete! +50 points</span>' : '<span class="info">Complete to earn +50 bonus points!</span>'}
+      </div>
+      
+      <div class="section-title">🌤️ Local Weather</div>
+      <div class="weather-card">
+        <div style="font-size:2rem;">🌤️</div>
+        <div style="font-size:1.5rem; font-weight:bold;">${weatherData.temp}</div>
+        <div>${weatherData.condition} | 💧 ${weatherData.humidity}</div>
+      </div>
+      
+      <div class="section-title">💱 Currency Converter</div>
+      <div class="flex">
+        <input type="number" id="currencyAmount" placeholder="Amount in ₦" style="flex:2;">
+        <select id="currencyTo" style="flex:1;">
+          <option value="USD">USD</option><option value="GBP">GBP</option><option value="EUR">EUR</option>
+        </select>
+        <button id="convertBtn" class="btn-outline" style="width:auto;">Convert</button>
+      </div>
+      <div id="conversionResult" class="info"></div>
+    `;
+  }
+
+  async function renderLearnTab() {
+    return `
+      <div class="section-title">📚 AI Learning Center (20 pts each)</div>
+      ${lessons.map(lesson => `
+        <div class="lesson-card" data-id="${lesson.id}" data-reward="${lesson.reward}">
+          <div class="flex">
+            <span><strong>${lesson.title}</strong></span>
+            <span class="green">${lesson.category}</span>
+          </div>
+          <div class="info" style="margin-top:0.3rem;">${lesson.content}</div>
+          ${userData?.[`lesson_${lesson.id}`] ? '<span class="green">✓ Completed</span>' : '<button class="btn-outline complete-lesson" style="margin-top:0.5rem;">Complete & Earn →</button>'}
+        </div>
+      `).join('')}
+      
+      <div class="section-title">📖 Free E-Books</div>
+      <div class="grid-2">
+        <div class="card" data-url="https://www.gutenberg.org/ebooks/"><div>📘 Business</div><div class="info">Free business books</div></div>
+        <div class="card" data-url="https://www.freecodecamp.org/news/"><div>💻 Coding</div><div class="info">Learn to code free</div></div>
+        <div class="card" data-url="https://www.investopedia.com/"><div>💰 Finance</div><div class="info">Financial literacy</div></div>
+        <div class="card" data-url="https://www.ted.com/talks"><div>🎤 Motivation</div><div class="info">Inspirational talks</div></div>
+      </div>
+    `;
+  }
+
+  async function renderJobsTab() {
+    return `
+      <div class="section-title">💼 Daily Opportunities</div>
+      ${jobs.map(job => `
+        <div class="job-card">
+          <div class="flex"><span><strong>${job.title}</strong></span><span class="green">${job.type}</span></div>
+          <div class="info">🏢 ${job.company} | 📍 ${job.location} | 💰 ${job.pay}</div>
+          <button class="btn-outline apply-job" style="margin-top:0.5rem;" data-url="${job.url}">Apply Now →</button>
+        </div>
+      `).join('')}
+      <div class="info">💡 New jobs added daily! Check back tomorrow.</div>
+    `;
+  }
+
+  async function renderCouponsTab() {
+    return `
+      <div class="section-title">🎁 Coupons & Discounts</div>
+      ${coupons.map(coupon => `
+        <div class="coupon-card" data-code="${coupon.code}">
+          <div style="font-size:1.2rem;">🏷️ ${coupon.discount}</div>
+          <div class="info">Code: <strong class="green">${coupon.code}</strong> | Valid: ${coupon.valid}</div>
+          <div class="info">💡 Tap to copy code</div>
+        </div>
+      `).join('')}
+    `;
+  }
+
+  async function renderAITab() {
+    return `
+      <div class="section-title">🤖 AI Assistant (Ask me anything!)</div>
+      <div id="chatMessages" style="height:300px; overflow-y:auto; background:#0f172a; border-radius:1rem; padding:0.5rem; margin-bottom:0.5rem;">
+        <div class="chat-message ai-message">🤖 Hi! I can help with coding, crypto, freelancing, AI, and business. Ask me a question!</div>
+      </div>
+      <div class="flex">
+        <input type="text" id="chatInput" placeholder="Ask a question..." style="flex:3;">
+        <button id="sendChatBtn" class="btn-outline" style="width:auto;">Send</button>
+      </div>
+    `;
+  }
+
+  async function renderFinanceTab() {
+    const expenses = await getExpenses();
+    const totalIncome = expenses.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
+    const totalExpense = expenses.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
+    
+    return `
+      <div class="section-title">💰 Expense Tracker</div>
+      <div class="grid-2">
+        <div class="card" style="background:linear-gradient(135deg,#1e3a1e,#0f172a);">📈 Income<br><span class="green">₦${totalIncome}</span></div>
+        <div class="card" style="background:linear-gradient(135deg,#3a1e1e,#0f172a);">📉 Expenses<br><span class="green">₦${totalExpense}</span></div>
+      </div>
+      <div class="flex">
+        <input type="text" id="expenseName" placeholder="Description" style="flex:2;">
+        <input type="number" id="expenseAmount" placeholder="Amount" style="flex:1;">
+        <select id="expenseType" style="flex:1;">
+          <option value="income">Income</option><option value="expense">Expense</option>
+        </select>
+        <button id="addExpenseBtn" class="btn-outline" style="width:auto;">Add</button>
+      </div>
+      
+      <div class="section-title">💾 Savings Goal</div>
+      <div class="opportunity-card">
+        <div class="flex"><span>Target: ₦${userData?.savingsTarget || 100000}</span><span>Saved: ₦${userData?.savingsCurrent || 0}</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${((userData?.savingsCurrent || 0)/(userData?.savingsTarget || 100000))*100}%"></div></div>
+        <div class="flex"><input type="number" id="savingsTarget" placeholder="Target amount" style="flex:1;"><input type="number" id="savingsCurrent" placeholder="Current saved" style="flex:1;"><button id="updateSavingsBtn" class="btn-outline" style="width:auto;">Update</button></div>
+      </div>
+    `;
+  }
+
+  async function renderNotesTab() {
+    const notes = await getNotes();
+    return `
+      <div class="section-title">📝 My Notes</div>
+      <textarea id="noteContent" rows="3" placeholder="Write a note... (e.g., password hint, shopping list)"></textarea>
+      <button id="saveNoteBtn" class="btn-outline">Save Note</button>
+      <div class="section-title">📂 Recent Notes</div>
+      ${notes.length === 0 ? '<div class="info">No notes yet. Save your first note!</div>' :
+        notes.map(n => `<div class="note-item"><span>📌 ${n.content.substring(0, 50)}...</span><span class="info">${new Date(n.date.toDate()).toLocaleDateString()}</span></div>`).join('')}
+    `;
+  }
+
+  async function renderProfileTab() {
+    return `
+      <div class="section-title">👤 Profile</div>
+      <div class="balance" style="text-align:left;">
+        <div><strong>Username:</strong> ${userData?.username}</div>
+        <div><strong>Email:</strong> ${currentUser?.email}</div>
+        <div><strong>Member since:</strong> ${userData?.createdAt ? new Date(userData.createdAt.toDate()).toLocaleDateString() : 'Today'}</div>
+        <div><strong>Total earned:</strong> ${userData?.totalPoints || 0} points</div>
+        <div><strong>Referral code:</strong> <span class="green">${userData?.referralCode || 'NONE'}</span></div>
+        <button id="logoutBtn" class="btn-outline" style="margin-top:1rem;">Logout</button>
+      </div>
+      <div class="info">Invite friends and earn 500 points when they join!</div>
+    `;
+  }
+
+  async function renderApp() {
+    const app = document.getElementById("app");
+    
+    if (!currentUser) {
+      app.innerHTML = `
+        <h1>💰 CentLock</h1>
+        <div class="info">Learn, earn, track finances & find opportunities!</div>
+        <div class="balance"><h2>Welcome!</h2></div>
+        <input type="email" id="loginEmail" placeholder="Email">
+        <input type="password" id="loginPass" placeholder="Password">
+        <button id="loginBtn" class="btn-daily">Login</button>
+        <hr>
+        <input type="email" id="regEmail" placeholder="Email">
+        <input type="text" id="regUser" placeholder="Username">
+        <input type="password" id="regPass" placeholder="Password (min 6)">
+        <button id="registerBtn" class="btn-outline">Sign Up (+50 pts)</button>
+      `;
+      document.getElementById("loginBtn")?.addEventListener('click', () => signIn(document.getElementById("loginEmail").value, document.getElementById("loginPass").value));
+      document.getElementById("registerBtn")?.addEventListener('click', async () => {
+        const pwd = document.getElementById("regPass").value;
+        if (pwd.length < 6) return alert("Min 6 characters");
+        await signUp(document.getElementById("regEmail").value, pwd, document.getElementById("regUser").value);
+      });
+      return;
+    }
+    
+    const homeContent = await renderHomeTab();
+    const learnContent = await renderLearnTab();
+    const jobsContent = await renderJobsTab();
+    const couponsContent = await renderCouponsTab();
+    const aiContent = await renderAITab();
+    const financeContent = await renderFinanceTab();
+    const notesContent = await renderNotesTab();
+    const profileContent = await renderProfileTab();
+    
+    app.innerHTML = `
+      <div class="flex"><h1>CentLock</h1><div class="info">👋 ${userData?.username}</div></div>
+      <div class="nav-tabs">
+        <button class="tab-btn ${currentTab === 'home' ? 'active' : ''}" data-tab="home">🏠 Home</button>
+        <button class="tab-btn ${currentTab === 'learn' ? 'active' : ''}" data-tab="learn">📚 Learn</button>
+        <button class="tab-btn ${currentTab === 'jobs' ? 'active' : ''}" data-tab="jobs">💼 Jobs</button>
+        <button class="tab-btn ${currentTab === 'coupons' ? 'active' : ''}" data-tab="coupons">🎁 Deals</button>
+        <button class="tab-btn ${currentTab === 'ai' ? 'active' : ''}" data-tab="ai">🤖 AI</button>
+        <button class="tab-btn ${currentTab === 'finance' ? 'active' : ''}" data-tab="finance">💰 Finance</button>
+        <button class="tab-btn ${currentTab === 'notes' ? 'active' : ''}" data-tab="notes">📝 Notes</button>
+        <button class="tab-btn ${currentTab === 'profile' ? 'active' : ''}" data-tab="profile">👤 Profile</button>
+      </div>
+      <div id="tabContent">
+        ${currentTab === 'home' ? homeContent : currentTab === 'learn' ? learnContent : currentTab === 'jobs' ? jobsContent : currentTab === 'coupons' ? couponsContent : currentTab === 'ai' ? aiContent : currentTab === 'finance' ? financeContent : currentTab === 'notes' ? notesContent : profileContent}
+      </div>
+    `;
+    
+    // Event Listeners
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', (e) => { currentTab = e.target.dataset.tab; renderApp(); }));
+    
+    if (currentTab === 'home') {
+      document.getElementById("quickAdBtn")?.addEventListener('click', watchAd);
+      document.getElementById("quickDailyBtn")?.addEventListener('click', claimDaily);
+      document.getElementById("convertBtn")?.addEventListener('click', () => {
+        const amount = document.getElementById('currencyAmount')?.value;
+        const to = document.getElementById('currencyTo')?.value;
+        const rates = { USD: 1500, GBP: 1900, EUR: 1600 };
+        if (amount) document.getElementById('conversionResult').innerHTML = `₦${amount} = ${to} ${(parseFloat(amount) / rates[to]).toFixed(2)}`;
+      });
+    }
+    
+    if (currentTab === 'learn') {
+      document.querySelectorAll('.complete-lesson').forEach(btn => {
+        const card = btn.closest('.lesson-card');
+        if (card) btn.addEventListener('click', () => completeLesson(parseInt(card.dataset.id), parseInt(card.dataset.reward)));
+      });
+      document.querySelectorAll('.card[data-url]').forEach(card => card.addEventListener('click', () => openUrl(card.dataset.url)));
+    }
+    
+    if (currentTab === 'jobs') {
+      document.querySelectorAll('.apply-job').forEach(btn => btn.addEventListener('click', () => openUrl(btn.dataset.url)));
+    }
+    
+    if (currentTab === 'coupons') {
+      document.querySelectorAll('.coupon-card').forEach(card => card.addEventListener('click', () => {
+        navigator.clipboard.writeText(card.dataset.code);
+        showToast(`Coupon code "${card.dataset.code}" copied!`, 1500);
+      }));
+    }
+    
+    if (currentTab === 'ai') {
+      document.getElementById("sendChatBtn")?.addEventListener('click', () => {
+        const input = document.getElementById('chatInput');
+        const question = input.value;
+        if (!question) return;
+        const chatDiv = document.getElementById('chatMessages');
+        chatDiv.innerHTML += `<div class="chat-message user-message">👤 ${question}</div>`;
+        setTimeout(() => {
+          const answer = getAIResponse(question);
+          chatDiv.innerHTML += `<div class="chat-message ai-message">🤖 ${answer}</div>`;
+          chatDiv.scrollTop = chatDiv.scrollHeight;
+        }, 500);
+        input.value = '';
+        addPoints(2, "Asked AI Assistant");
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+      });
+    }
+    
+    if (currentTab === 'finance') {
+      document.getElementById("addExpenseBtn")?.addEventListener('click', () => {
+        const name = document.getElementById('expenseName')?.value;
+        const amount = document.getElementById('expenseAmount')?.value;
+        const type = document.getElementById('expenseType')?.value;
+        if (name && amount) addExpense(name, amount, type);
+      });
+      document.getElementById("updateSavingsBtn")?.addEventListener('click', async () => {
+        const target = document.getElementById('savingsTarget')?.value;
+        const current = document.getElementById('savingsCurrent')?.value;
+        if (target) await db.collection('users').doc(currentUser.uid).update({ savingsTarget: parseFloat(target), savingsCurrent: parseFloat(current) || 0 });
+        await loadUserData();
+        renderApp();
+      });
+    }
+    
+    if (currentTab === 'notes') {
+      document.getElementById("saveNoteBtn")?.addEventListener('click', () => {
+        const content = document.getElementById('noteContent')?.value;
+        if (content) saveNote(content);
+      });
+    }
+    
+    if (currentTab === 'profile') {
+      document.getElementById("logoutBtn")?.addEventListener('click', signOut);
+    }
+  }
+  
+  auth.onAuthStateChanged(async (user) => {
+    if (user) { currentUser = user; await loadUserData(); renderApp(); } 
+    else renderApp();
+  });
+</script>
+</body>
+</html>
